@@ -103,11 +103,11 @@ while proceed == 1:
                 date = input1[1]
                 hours = round(int(input1[2]) + (int(input1[3]) / 60), 2)
                 if subject not in historical_records:
-                    new_record[subject] = [{'Date': '',
-                                            'Hours': 0
+                    new_record[subject] = [{"Date": "",
+                                            "Hours": 0
                                             }]
                     historical_records[subject] = new_record[subject]
-                    new_record[subject] = [{'Date': date, 'Hours': hours}]
+                    new_record[subject] = [{"Date": date, "Hours": hours}]
                     historical_records[subject].append(new_record[subject])
                     print(f'You have entered that you have studied {subject.capitalize()} for {hours} hours on {date}\n'
                           f'----------------------------------------------------------------------------------')
@@ -133,7 +133,7 @@ while proceed == 1:
                     print('------------------------------------------------')
                     if 'y' in correct:
                         output = Path('record.json')
-                        new_record[subject] = [{'Date': date, 'Hours': hours}]
+                        new_record[subject] = [{"Date": date, "Hours": hours}]
                         historical_records[subject].append(new_record[subject])
                         print(f'You have entered that you have studied {subject.capitalize()} for {hours} hours on {date}\n'
                               f'----------------------------------------------------------------------------------')
