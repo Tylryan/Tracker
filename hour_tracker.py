@@ -111,22 +111,44 @@ while proceed == 1:
                     historical_records[subject].append(new_record[subject])
                     print(f'You have entered that you have studied {subject.capitalize()} for {hours} hours on {date}\n'
                           f'----------------------------------------------------------------------------------')
-                    break
+
+                    correct = input('Is this correct? (y/n)').lower()
+                    print('----------------------------------------------')
+                    if 'y' in correct:
+                        output = Path('record.json')
+                        with open(output, 'w') as file:
+                            file.write(str(historical_records))
+                            file.close()
+                        print(f'[{subject}] was not in the record books, but I added it. ')
+                        break
+                    else:
+                        print("Well then. Let's try that again. As of right now, I cannot remove files once they are inserted.")
+
+
 
                 elif subject in historical_records:
-                    new_record[subject] = [{'Date': date, 'Hours': hours}]
-                    historical_records[subject].append(new_record[subject])
                     print(f'You have entered that you have studied {subject.capitalize()} for {hours} hours on {date}\n'
                           f'----------------------------------------------------------------------------------')
-                    break
+                    correct = input('Is this correct? (y/n)').lower()
+                    print('------------------------------------------------')
+                    if 'y' in correct:
+                        output = Path('record.json')
+                        new_record[subject] = [{'Date': date, 'Hours': hours}]
+                        historical_records[subject].append(new_record[subject])
+                        print(f'You have entered that you have studied {subject.capitalize()} for {hours} hours on {date}\n'
+                              f'----------------------------------------------------------------------------------')
+                        output = Path('record.json')
+                        with open(output, 'w') as file:
+                            file.write(str(historical_records))
+                            file.close()
+                        break
+                    else:
+                        print("Well then. Let's try that again. As of right now, I cannot remove files once they are inserted.")
     except:
         print('Hmm. Something went wrong. Try again. \n\n If you need more help, type "help"')
 
 
-output = Path('record.json')
-with open(output, 'w') as file:
-    file.write(str(historical_records))
-    file.close()
+
 
 
 
