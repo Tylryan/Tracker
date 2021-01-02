@@ -15,18 +15,17 @@ subject = input[0]
 date = input[1]
 hours = round(int(input[2]) + (int(input[3]) / 60),2)
 print(hours)
-for subject in historical_records:
-    if subject not in historical_records:
-        new_record[subject] = [{'Date': '',
-                               'Hours': 0
-        }]
-        historical_records[subject] = new_record[subject]
-        new_record[subject] = [{'Date': date, 'Hours': hours}]
-        historical_records[subject].append(new_record[subject])
+if subject not in historical_records:
+    new_record[subject] = [{'Date': '',
+                           'Hours': 0
+    }]
+    historical_records[subject] = new_record[subject]
+    new_record[subject] = [{'Date': date, 'Hours': hours}]
+    historical_records[subject].append(new_record[subject])
 
-    elif subject in historical_records:
-        new_record[subject] = [{'Date': date, 'Hours': hours}]
-        historical_records[subject].append(new_record[subject])
+elif subject in historical_records:
+    new_record[subject] = [{'Date': date, 'Hours': hours}]
+    historical_records[subject].append(new_record[subject])
 
 print(new_record)
 
