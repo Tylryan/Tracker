@@ -123,10 +123,10 @@ while proceed == 1:
         print('Hmm. Something went wrong. Try again. \n\n If you need more help, type "help"')
 
 
-
-# with open('record.json', 'w') as file:
-#     file.write(str(historical_records))
-#     file.close()
+output = Path('record.json')
+with open(output, 'w') as file:
+    file.write(str(historical_records))
+    file.close()
 
 
 
