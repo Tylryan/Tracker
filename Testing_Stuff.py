@@ -1,14 +1,19 @@
-from datetime import datetime,date, time
-print('Format = Hour Minute: NO COMMA OR ANYTHING')
-    # start_time = input('Start Hour/Minute: ').split()
-    # # start_hour = int(start_time[0])
-    # # start_minute = int(start_time[1])
-start = time(12, 36)
+# Make it to where the user can input hours and minutes
+# and it automatically calculates the time.
 
-print('Format = Hour Minute: NO COMMA OR ANYTHING')
-# end_time = input('End Hour/Minute: ').split()
-# end_hour = int(end_time[0])
-# end_minute = int(end_time[1])
-end = time(15, 36)
+import seaborn as sns
+#python 1/25/25 1 25
+#list[2] = hour
 
-print(datetime.combine(date.min, end) - datetime.combine(date.min, start))
+import pandas as pd
+import csv
+import matplotlib.pyplot as plt
+from datetime import time, date, datetime
+historical_records = pd.read_csv('record.csv')
+
+
+hours_by_subject = historical_records.groupby('Subject').Hours.sum()
+hours_by_subject.plot(kind = 'bar', legend = True)
+
+# hours_by_subject.plot(kind = 'bar', figsize = (20,10))
+# historical_records =  historical_records.set_index('Date')
