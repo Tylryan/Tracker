@@ -7,12 +7,12 @@ import seaborn as sns
 historical_records = pd.read_csv('record.csv', parse_dates=True, infer_datetime_format=True)
 historical_records.sort_values('Date', ascending = True, inplace = True)
 proceed = 1
-
+print(historical_records)
 while proceed ==1:
 
     print("""
     ----------------------------------------------------------------------
-Enter in a record formatted like: Subject Date Hours Minutes \n
+Enter in a record formatted like: Python 01/01/21 1.5 \n
 Or Type in a number below.
 
 (1) Time Calculator: If you know when, but not how many.
@@ -25,7 +25,7 @@ Or Type in a number below.
     """)
     #! This shows you the last entry for each item.
     last_items_entered = historical_records.groupby('Subject').last()
-    print(f'\n\nThese are the last records entered by subject\n\n'
+    print(f'These are the last records entered by subject\n\n'
             f'{last_items_entered}\n\n')
     first_input = input('What would you like to do? ').lower().split()
 
