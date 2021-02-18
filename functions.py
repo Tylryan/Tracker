@@ -134,6 +134,11 @@ def weekly_rolling_avg_graph(historical_records):
     
     ################################ SAVING ########################################
 
-        
+def save(new_record, historical_records):
+    updated_historical_records = historical_records.append(new_record, ignore_index=True)
+    # This is the main save. Could be corrupted by faulty code.
+    updated_historical_records.to_csv('records.csv', sep = ',', index = False)
+    # This print statement helps verify that nothing went wrong with the code.
+    print(historical_records.tail())   
     ############################### Backup #########################################
 
