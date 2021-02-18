@@ -139,6 +139,12 @@ def save(new_record, historical_records):
     # This is the main save. Could be corrupted by faulty code.
     updated_historical_records.to_csv('records.csv', sep = ',', index = False)
     # This print statement helps verify that nothing went wrong with the code.
-    print(historical_records.tail())   
+    print(historical_records.tail(10).sort_values(by = ['Date','Subject']))  
     ############################### Backup #########################################
-
+def backup(historical_records):
+    backup = input('Would You like to back this data up? y/n ')
+    if 'y' in backup.lower():
+        historical_records.to_csv('backup.csv', sep = ',', index = False)
+    elif 'n' in backup.lower():
+        print('\n\nBackup database has NOT been updated.')
+        time.sleep(1.5)

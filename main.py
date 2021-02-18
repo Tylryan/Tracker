@@ -4,6 +4,7 @@ import pandas as pd
 import csv
 from datetime import time, date, datetime
 import functions
+import time
 ################################ READING HISTORICAL DATA ########################################################################
 
 historical_records = pd.read_csv('records.csv', parse_dates=True, infer_datetime_format=True)
@@ -82,31 +83,27 @@ Or Type in a number below.
         new_record = [subject,date,hours]
         #! Add a way to automatically save data locally to a different file for backup
         if subject not in historical_records.Subject.unique():
-            track = input(f'It looks like "{subject.title()} is new to our records. Would you like\n'
+            track = input(f'It looks like "{subject.upper()}" is new to our records. Would you like\n'
                           f'to start tracking it? (y/n): ').lower()
             if track == 'y':
                 new_record = pd.DataFrame({'Subject': [subject], 'Date': [date], 'Hours': [hours]})
                 functions.save(new_record,historical_records)
                 #This is the back up save. Can be recovered if original data is corrupted.
-                backup = input('Would You like to back this data up? y/n ')
-                if 'y' in backup:
-                    historical_records.to_csv('backup.csv', sep = ',', index = False)
-                else:
-                    break
+                functions.backup(historical_records)
+                break
+            else:
+                print(f'\n\n{subject.upper()} has NOT been added to the record books.')
+                time.sleep(1.5)
+                break
         else:
             track = input(f'You are about to enter that you have studied [{subject.swapcase()}] for [{hours}] hours\n'
                           f'on [{date.swapcase()}]. Is this correct? (y/n): ').lower()
             if track == 'y':
                 new_record = pd.DataFrame({'Subject': [subject], 'Date': [date], 'Hours': [hours]})
-                historical_records = historical_records.append(new_record, ignore_index=True)
-                historical_records.to_csv('records.csv', sep = ',', index = False)
-                # This print statement helps verify that nothing went wrong in the code.
-                print(historical_records.tail())                
-                backup = input('Would You like to back this data up? y/n ')
-                if 'y' in backup:
-                    historical_records.to_csv('backup.csv', sep = ',', index = False)
-                else:
-                    break
+                functions.save(new_record, historical_records)
+                # This print statement helps verify that nothing went wrong in the code.             
+                functions.backup(historical_records)
+                break
     elif len(first_input) != 3: # This is the very last one!
         print('There should only be 4 entries: x x x x.')
     elif 'stop' in first_input:
