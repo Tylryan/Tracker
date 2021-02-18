@@ -7,8 +7,8 @@ import seaborn as sns
 import time 
 import os
 #! Eventually, I would the graphs to be in a dashboard.
-historical_records = pd.read_csv('record.csv', parse_dates=True, infer_datetime_format=True)
-historical_records = historical_records.sort_values('Date', ascending = True)
+# historical_records = pd.read_csv('record.csv', parse_dates=True, infer_datetime_format=True)
+# historical_records = historical_records.sort_values('Date', ascending = True)
 ############################## CLEARING THE TERMINAL ######################################
 def clear_terminal():
     clear = os.system('cls' if os.name == 'nt' else 'clear')
@@ -48,7 +48,8 @@ def time_calculator():
 ############################## DATA REPORTS (NO GRAPHS) ######################################
 def hours_by_subject(historical_records):
 
-    total_hours = historical_records.groupby('Subject').Hours.sum()
+    total_hours = pd.DataFrame(historical_records.groupby('Subject').Hours.sum())
+    total_hours.columns = ['Hours Studied']
     print(f'Total Hours Studied by Subject: \n\n'
         f'{total_hours}')
     enter = input('Press "Enter" to continue: ')
@@ -58,16 +59,19 @@ def past_seven_days(historical_records):
     unique_days = indexed.index.unique()
     seven_days_ago = unique_days[-7]
     seven_days_of_data = indexed[indexed.index >= seven_days_ago]
-    grouped_seven = seven_days_of_data.groupby('Subject').Hours.sum()
-    print(grouped_seven)
-    grouped_seven.columns = ['Subject','Hours']
-    print(grouped_seven)
+    grouped_seven = pd.DataFrame(seven_days_of_data.groupby('Subject').Hours.sum())
+    grouped_seven.columns = ['Hours Studied']
     print(f'----------------------------------------------------------------------'
         f'\n\nTotal Hours for the Last Seven Days.\n\n'
         f'{grouped_seven}\n\n'
         f'----------------------------------------------------------------------')
     enter = input('Press "Enter" to continue: ')
-past_seven_days(historical_records)
+# Finding the average amount of hours studied per day by subject.
+def hours_studied_per_day(historical_records):
+    hr_grouped_by_subject = pd.DataFrame(historical_records.groupby('Subject').Hours.mean().round(2))
+    hr_grouped_by_subject.columns = ['Hours Studied per Day']
+    print(hr_grouped_by_subject)
+    enter = input('Press "Enter" to continue: ')
 ############################## GRAPHS ######################################
 def pie_hours_by_subject(historical_records):
 
@@ -94,32 +98,42 @@ def past_seven_days_graph(historical_records):
 
 # This is the 7-day rolling average.
 # Getting all the subjects.
-def weekly_rolling_avg():
-    try:
-        subjects = [unique for unique in historical_records['Subject'].unique()]
+def weekly_rolling_avg_graph(historical_records):
+    # Creating a live list of subject studied.
+    subjects = [unique for unique in historical_records['Subject'].unique()]
+    # Creating a single dataframe to add the others to.
+    mask = historical_records['Subject'] == 'python'
+    initial_df = pd.DataFrame(historical_records[mask].groupby('Date').sum())
 
-        # Creating a single dataframe to add the others to.
-        mask = historical_records['Subject'] == 'python'
-        initial_df = pd.DataFrame(historical_records[mask].groupby('Date').sum())
+    # Adding the other's to the dataframe.
+    for i in subjects:
+        print(i)
+        # Creating a filter
+        mask = historical_records['Subject'] == i
+        # Applying filter to historical records
+        temp_df = historical_records[mask].groupby('Date').sum()
+        # Turning the data into a dataframe.
+        new_df= pd.DataFrame(temp_df)
+        # Creating Column names for the new columns.
+        new_df.columns = [f'{i.title()} Hours']        
+        # Combining all the new dataframes to the existing one.
+        initial_df = pd.concat([initial_df,new_df], axis = 'columns', join = 'outer')
+    # Replacing the NaNs with 0
+    combined_df = initial_df.fillna(0)
 
-        # Adding the other's to the dataframe.
-        for i in subjects:
-            mask = historical_records['Subject'] == i
-            temp_df = historical_records[mask].groupby('Date').sum()
-            temp_df.columns = [f'{i.title()} Hours']
-            temp_df= pd.DataFrame(temp_df)
-            df = pd.concat([a,b], axis = 'columns', join = 'outer', verify_integrity = True)
 
-        # Replacing the NaNs with 0
-        df = df.fillna(0)
-
-        subjects_in_columns = df.drop(columns = ['Hours'])
+    subjects_in_columns = combined_df.drop(columns = ['Hours'])
 
 
-        rolling_7 = subjects_in_columns.rolling(window = 7).mean()
+    rolling_7 = subjects_in_columns.rolling(window = 7).mean()
+    print(rolling_7)
 
-        rolling_7.plot()
-        plt.show()
-    except:
-        print('You might not have enough data yet.')
-        cont = input('Press "Enter to continue. ')
+    rolling_7.plot()
+    plt.show()
+
+    
+    ################################ SAVING ########################################
+
+        
+    ############################### Backup #########################################
+

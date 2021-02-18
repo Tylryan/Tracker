@@ -2,14 +2,11 @@
 
 import pandas as pd
 import csv
-import matplotlib.pyplot as plt
 from datetime import time, date, datetime
-import seaborn as sns
 import functions
-import time
 ################################ READING HISTORICAL DATA ########################################################################
 
-historical_records = pd.read_csv('record.csv', parse_dates=True, infer_datetime_format=True)
+historical_records = pd.read_csv('records.csv', parse_dates=True, infer_datetime_format=True)
 historical_records = historical_records.sort_values('Date', ascending = True)
 proceed = 1
 
@@ -58,12 +55,19 @@ Or Type in a number below.
                 #! This shows you the total hours studied by subject for the last week (7 DAYS).
                 functions.past_seven_days_graph(historical_records)
                 #! A function that returns the 7-day rolling average of hours studied.
-                functions.weekly_rolling_avg()
+                functions.weekly_rolling_avg_graph(historical_records)
 
             elif '2' in data_type:
-                #! Subject grouped by hours
+                #! Total Hours Studied by Subject
                 functions.hours_by_subject(historical_records)
+
+                #! Hours studied by subject over the past week.
                 functions.past_seven_days(historical_records)
+                #! Average hours studied per day by subject.
+                functions.hours_studied_per_day(historical_records)
+
+                #! 7-Day Moving Average of the past week
+                
 
 
         #! Eventually, you are going to want to see the weekly change in total hours by subject.
@@ -83,16 +87,26 @@ Or Type in a number below.
             if track == 'y':
                 new_record = pd.DataFrame({'Subject': [subject], 'Date': [date], 'Hours': [hours]})
                 historical_records = historical_records.append(new_record, ignore_index=True)
-
-                historical_records.to_csv('record.csv', sep = ',', index = False)
+                # This is the main save. Could be corrupted by faulty code.
+                historical_records.to_csv('records.csv', sep = ',', index = False)
+                # This is the back up save. Can be recovered if original data is corrupted.
+                backup = input('Would You like to back this data up? y/n ')
+                if 'y' in backup:
+                    historical_records.to_csv('backup.csv', sep = ',', index = False)
+                else:
+                    break
         else:
             track = input(f'You are about to enter that you have studied [{subject.swapcase()}] for [{hours}] hours\n'
                           f'on [{date.swapcase()}]. Is this correct? (y/n): ').lower()
             if track == 'y':
                 new_record = pd.DataFrame({'Subject': [subject], 'Date': [date], 'Hours': [hours]})
                 historical_records = historical_records.append(new_record, ignore_index=True)
-
-                historical_records.to_csv('record.csv', sep = ',', index = False)
+                historical_records.to_csv('records.csv', sep = ',', index = False)
+                backup = input('Would You like to back this data up? y/n ')
+                if 'y' in backup:
+                    historical_records.to_csv('backup.csv', sep = ',', index = False)
+                else:
+                    break
     elif len(first_input) != 3: # This is the very last one!
         print('There should only be 4 entries: x x x x.')
     elif 'stop' in first_input:
