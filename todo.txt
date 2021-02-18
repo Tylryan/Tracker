@@ -1,0 +1,2 @@
+# Allow for local save file separate from the main one.
+This will make it harder for the program to mess up your data.
