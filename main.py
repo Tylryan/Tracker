@@ -9,10 +9,11 @@ import time
 
 historical_records = pd.read_csv('records.csv', parse_dates=True, infer_datetime_format=True)
 historical_records = historical_records.sort_values('Date', ascending = True)
+
+################################# THE GAME!!! ##############################################################
 proceed = 1
 
 while proceed ==1:
-#############################################################################################################
     functions.clear_terminal()
     print("""
 ----------------------------------------------------------------------
@@ -67,14 +68,6 @@ Or Type in a number below.
                 #! Average hours studied per day by subject.
                 functions.hours_studied_per_day(historical_records)
 
-                #! 7-Day Moving Average of the past week
-                
-
-
-        #! Eventually, you are going to want to see the weekly change in total hours by subject.
-        #* Figure out how to subtract 2 group by with .diff().
-        #* Last 7 days grouped minus 8 to 14 days grouped.
-        #! This week you studied Python for 5 more hours.
     elif len(first_input) == 3:
         # Here we are going to start tracking.
         subject = first_input[0]

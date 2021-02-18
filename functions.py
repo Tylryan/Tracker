@@ -7,6 +7,14 @@ import seaborn as sns
 import time 
 import os
 #! Eventually, I would the graphs to be in a dashboard.
+#! Eventually, you are going to want to see the weekly change in total hours by subject.
+    #* Figure out how to subtract 2 group by with .diff().
+    #* Last 7 days grouped minus 8 to 14 days grouped.
+    #* This week you studied Python for 5 more hours.
+#! I would like to see a built in stop watch feature.
+#! I would also like to see a desktop version. Perhaps using Tkinter.
+
+
 # historical_records = pd.read_csv('record.csv', parse_dates=True, infer_datetime_format=True)
 # historical_records = historical_records.sort_values('Date', ascending = True)
 ############################## CLEARING THE TERMINAL ######################################
@@ -57,8 +65,10 @@ def hours_by_subject(historical_records):
 def past_seven_days(historical_records):
     indexed = historical_records.set_index('Date')
     unique_days = indexed.index.unique()
+
     seven_days_ago = unique_days[-7]
     seven_days_of_data = indexed[indexed.index >= seven_days_ago]
+
     grouped_seven = pd.DataFrame(seven_days_of_data.groupby('Subject').Hours.sum())
     grouped_seven.columns = ['Hours Studied']
     print(f'----------------------------------------------------------------------'
@@ -121,12 +131,8 @@ def weekly_rolling_avg_graph(historical_records):
     # Replacing the NaNs with 0
     combined_df = initial_df.fillna(0)
 
-
     subjects_in_columns = combined_df.drop(columns = ['Hours'])
-
-
     rolling_7 = subjects_in_columns.rolling(window = 7).mean()
-    print(rolling_7)
 
     rolling_7.plot()
     plt.show()
