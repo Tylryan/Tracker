@@ -10,9 +10,8 @@ historical_records = historical_records.sort_values('Date', ascending = True)
 historical_records['Date'] = pd.to_datetime(historical_records['Date']).dt.date
 
 ################################# THE GAME!!! ##############################################################
-proceed = 1
-
-while proceed ==1:
+stop = False
+while stop == False:
     functions.clear_terminal()
     print("""
 ----------------------------------------------------------------------
@@ -24,7 +23,7 @@ Or Type in a number below.
 (3) The last 5 Entries
 (4) For Stats and Charts
 (5) Backup Data
-(stop) To stop the program.
+(9) To stop the program.
 
 ----------------------------------------------------------------------
     """)
@@ -36,8 +35,12 @@ Or Type in a number below.
 
     print('----------------------------------------------------------------------')
 #############################################################################################################
-    
-    if '1' in first_input[0]:
+    if '9' in first_input:
+        print('Application stopped')
+        time.sleep(1.5)
+        break
+
+    elif '1' in first_input[0]:
         # Create a time calculator e.g. 15:36 - 12:36 = 3 Hours
         functions.time_calculator()
     elif '2' in first_input:
@@ -98,14 +101,11 @@ Or Type in a number below.
                 functions.save(new_record, historical_records)
                 # This print statement helps verify that nothing went wrong in the code.             
                 functions.backup(historical_records)
-                break
     elif '5' in first_input:
         functions.clear_terminal()
         print('These are the last ten records. If they look correct, then backup is safe.\n\n')
         functions.backup(historical_records)
     elif len(first_input) != 3: # This is the very last one!
         print('There should only be 4 entries: x x x x.')
-    elif 'stop' in first_input:
-        proceed -= 1
 
 
