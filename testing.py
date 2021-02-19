@@ -9,74 +9,67 @@ import seaborn as sns
 import time
 import functions
 import datetime
+import os
 
-historical_records = pd.read_csv('record.csv', parse_dates=True, infer_datetime_format=True)
-historical_records = historical_records.sort_values('Date', ascending = True)
 
-# This looks really good if you are just looking at it.
-# a = pd.DataFrame(historical_records.groupby(['Subject','Date']).Hours.sum())
+##################################### If you don't have the correct files in your directory ##########################################################
 
-#! Creating a built in stopwatch
-first_input = input('something -> ').lower().split()
-def stopwatch(historical_records):
-    to_track = input('Insert the subject you would like to track and the current day. ').lower().split()
-    subject = to_track[0]
-    date = to_track[1]
+def file_checking():
+    functions.clear_terminal()
+    # Check to see if the correct csv files are in the directory
+    files_in_directory = [file for file in os.listdir('.')]
+    # If they are not, put them there
+    if 'record.csv' not in files_in_directory:
+        no_record = True
+        # This just tells the terminal (mac/linux)
+        new_records = os.system('touch records.csv')
+    if 'backups.csv' not in files_in_directory:
+        no_backup = True
+        new_backup = os.system('touch backup.csv')
+    if (no_record == True )and (no_backup == True):
+        print('You have neither a record.csv nor backup.csv')
+        print('I will create them for you ')
+        cont = input('Press "Enter" to continue. ')
+file_checking()
 
-    # Clear the terminal here
-    print('This stopwatch returns values in terms of hours rounded to the hundredths\n\n'
-    'For example, 10 minutes will return 0.17 hours')
-    print('\n\n----------------------------------------------------------------------')
-    start_input = input('Time will be started after you press "Enter". ')
-    stopwatch_start = dt.datetime.now()
-    print(f'\nRecording Time: {stopwatch_start}')
-    print('----------------------------------------------------------------------')
+##################################### If you have no data in your files ##############################################################################
 
-    end_input = input('\nTime will be stopped after you press "Enter"')
-    stopwatch_end = dt.datetime.now()
+def first_data():
+    
+    empty_records_file = os.stat("records.csv").st_size == 0
+    if empty_records_file == True:
+        # Create the column names "Subject","Date","Hours" in the empty records.csv.
+        historical_data = pd.DataFrame(columns = ['Subject','Date','Hours'])
 
-    studied = round((stopwatch_end - stopwatch_start).total_seconds() / 3600,2)
-    print(f'\nRecording Ended: {stopwatch_end}\n')
-    time.sleep(1.0)
-    # Clear Terminal
-    print('################################ && ##################################\n')
-    print(f'You have studied for {studied} hours')
-    print('\n################################ && ##################################\n\n\n')
-    cont = input('Press Enter to continue ')
+        # Sample Data
+        subject = 'python'
+        date = '02/25/25'
+        hours = '1.5'
 
-    hours = studied
-    new_record = [subject,date,hours]
-    return subject, date, hours, new_record
+        # Creating the new dataframe.
+        new_record = pd.DataFrame(
+            {
+                'Subject': [subject],
+                'Date': [date],
+                'Hours': [hours]
+                
+            }
+        )
 
-def stopwatch_save(first_input, historical_records):
-    if len(first_input) == 2: # NOTE THIS ALLOWS YOU TO AUTOMATICALL GO TO TIME TRACKING WITHOUT PRESSING 2.
-        subject, date, hours, new_record = stopwatch(historical_records)
-    elif first_input[0] == '2':
-        subject, date, hours, new_record = stopwatch(historical_records)
-    elif len(first_input) == 3:
-        subject = first_input[0]
-        date = first_input[1]
-        hours = first_input[2]
-        new_record = [subject,date,hours]
-    #! Add a way to automatically save data locally to a different file for backup
-    if subject not in historical_records.Subject.unique():
-        track = input(f'It looks like "{subject.upper()}" is new to our records. Would you like\n'
-                        f'to start tracking it? (y/n): ').lower()
-        if track == 'y':
-            new_record = pd.DataFrame({'Subject': [subject], 'Date': [pd.Timestamp(date).date], 'Hours': [hours]})
-            functions.save(new_record,historical_records)
-            #This is the back up save. Can be recovered if original data is corrupted.
-            functions.backup(historical_records)
-        else:
-            print(f'\n\n{subject.upper()} has NOT been added to the record books.')
-            time.sleep(1.5)
-    else:
-        print('----------------------------------------------------------------------')
-        track = input(f'You are about to enter that you have studied [{subject.swapcase()}] for [{hours}] hours\n'
-                        f'on [{date}]. Is this correct? (y/n): ').lower()
-        print('----------------------------------------------------------------------')
-        if track == 'y':
-            new_record = pd.DataFrame({'Subject': [subject], 'Date': [date], 'Hours': [hours]})
-            functions.save(new_record, historical_records)
-            # This print statement helps verify that nothing went wrong in the code.             
-            functions.backup(historical_records)
+        historical_data = historical_data.append(new_record)
+        historical_data.to_csv('records.csv', index = False)
+
+
+
+# try:
+#     historical_records = pd.read_csv('test.csv', parse_dates = True, infer_datetime_format = True)
+#     historical_records = historical_records.sort_values('Date', ascending = True)
+
+#     subject = 'python'
+#     # Creating datetime format with only the date. Not seconds or anything.
+#     date = pd.to_datetime('02/02/25').date()
+#     hours = 1.5
+#     # Creating a new record which will be appended to an empty dataframe
+#     new_record = [subject,date,hours]
+# except NameError:
+#     print('There is no data in this file')

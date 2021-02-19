@@ -4,13 +4,19 @@ from datetime import time, date, datetime
 import functions
 import help
 import time
-################################ READING HISTORICAL DATA ########################################################################
 
-historical_records = pd.read_csv('records.csv')
+###################################### CHECKING TO MAKE SURE THEY HAVE FILES AND STUFF IN THEM ##################################
+
+# Checking to make sure they have the correct files in this directory
+functions.file_checking()
+# Making sure they have data in their files. Won't work without it.
+functions.first_data()
+########################################## READING HISTORICAL DATA ##############################################################
+
+historical_records = pd.read_csv('records.csv', parse_dates = True, infer_datetime_format = True)
 historical_records = historical_records.sort_values('Date', ascending = True)
-historical_records['Date'] = pd.to_datetime(historical_records['Date']).dt.date
-
-################################# THE GAME!!! ##############################################################
+# historical_records['Date'] = pd.to_datetime(historical_records['Date']).dt.date
+############################################### THE GAME!!! #####################################################################
 
 while True:
     try:

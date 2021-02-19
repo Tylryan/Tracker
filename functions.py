@@ -23,29 +23,76 @@ def clear_terminal():
     # If the system is microsoft, then print to the terminal "cls". If the system is not microsoft, print to the terminal "clear"
     clear = os.system('cls' if os.name == 'nt' else 'clear')
     return clear
-##############################         Stopwatch       ######################################
-# def stopwatch():
-#     # Clear the terminal here
-#     print('This stopwatch returns values in terms of hours rounded to the hundredths\n\n'
-#     'For example, 10 minutes will return 0.17 hours')
-#     print('\n\n----------------------------------------------------------------------')
-#     start_input = input('Time will be started after you press "Enter". ')
-#     stopwatch_start = dt.datetime.now()
-#     print(f'\nRecording Time: {stopwatch_start}')
-#     print('----------------------------------------------------------------------')
 
-#     end_input = input('\nTime will be stopped after you press "Enter"')
-#     stopwatch_end = dt.datetime.now()
+#!##################################### If the user has not previous files or data #######################################################
 
-#     studied = round((stopwatch_end - stopwatch_start).total_seconds() / 3600,2)
-#     print(f'\nRecording Ended: {stopwatch_end}\n')
-#     time.sleep(1.0)
-#     # Clear Terminal
-#     print('################################ && ##################################\n')
-#     print(f'You have studied for {studied} hours')
-#     print('\n################################ && ##################################\n\n\n')
-#     cont = input('Press Enter to continue ')
-#     return studied
+##################################### Checking that the correct files are in this directory ##########################################################
+
+def file_checking():
+    try:
+        clear_terminal()
+        # Check to see if the correct csv files are in the directory
+
+        # Gets all the files and directories in the current directory
+        files_in_directory = [file for file in os.listdir('.')]
+        # Checks to see if "records.csv" is in the current directory
+        no_record = False
+        no_backup = False
+        if 'records.csv' not in files_in_directory:
+            no_record = True
+        # Checks to see if "backup.csv" is in the current directory
+        if 'backup.csv' not in files_in_directory:
+            no_backup = True
+
+        # Creates csv files if both are not there
+        if (no_record == True ) and (no_backup == True): # Both yes and no work 2-19-21
+            print('You have neither a record.csv nor backup.csv')
+            new_files = input('I will create them for you if you want: y/n: ')
+            if 'y' in new_files:
+
+            # This just tells the terminal (mac/linux)
+                new_records = os.system('touch records.csv')
+                new_backup = os.system('touch backup.csv')
+                cont = input('Press "Enter" to continue ')
+            else:
+                print('No new files were created')
+                print('You are now leaving this program')
+                time.sleep(2)
+                exit_program = os.sys.exit()
+    except: # This try except loop doesn't work
+        print('One of your files might me missing ')
+        print("Don't worry too much. Just copy and paste one to the other ")
+
+##################################### Checking if there is any data in those files ##############################################################################
+
+def first_data():
+    empty_records_file = os.stat("records.csv").st_size == 0
+    if empty_records_file == True:
+        print('You have no data in your records.csv')
+        print('Let\'s enter in a new record' )
+        cont = input('Press "Enter" to continue' )
+        # Create the column names "Subject","Date","Hours" in the empty records.csv.
+        historical_data = pd.DataFrame(columns = ['Subject','Date','Hours'])
+        print('Please use a space as the delimiter!!')
+        creating_data = input('Type in the SUBJECT, DATE, and HOURS spent in this format\n\n'
+        'Python 01/01/25 1.5: ').lower().split()
+        subject = creating_data[0]
+        date = creating_data[1]
+        hours = creating_data[2]
+
+        # Creating the new dataframe.
+        new_record = pd.DataFrame(
+            {
+                'Subject': [subject],
+                'Date': [date],
+                'Hours': [hours]    
+            }
+        )
+
+        historical_data = historical_data.append(new_record)
+        historical_data.to_csv('records.csv', index = False)
+        historical_data.to_csv('backup.csv', index = False)
+
 ############################## TIME CALCULATOR ######################################
 # Allows you to insert the the time of day you started and stopped studying. Then calculates the time spent studying.
 def time_calculator():

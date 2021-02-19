@@ -1,2 +1,8 @@
-# Allow for local save file separate from the main one.
-This will make it harder for the program to mess up your data.
+Things I need to work on for the Tracker project.
+
+1) Somehow make the program work even if the user has no data.
+	a) It would need to make it's own file: records and backup.
+	b) It would need to be able to give them column names: Subject, Date, Hour
+	c) It would need to be able to populate those empty columns.
+2) Put all the individual graphs into one dashboard. 
+
