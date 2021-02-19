@@ -1,3 +1,5 @@
+#! /bin/python
+
 import pandas as pd
 import csv
 from datetime import time, date, datetime

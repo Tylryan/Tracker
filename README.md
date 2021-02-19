@@ -15,7 +15,7 @@ The purpose of this application is to be able to track the amount of hours spend
 * Time Calculator:
     * This is use when the user knows the time they started and stopped an activity, but they don't want calculate the math.
     * The user can use the results of the Time Calculator to enter in time for a subject.
-* Backup Saves: This help prevent lost data.
+* Backup Saves:
     * After the user enters in their data, they will be prompted to back up their data if they choose. 
     * This is independent of the autosave. This helps to prevent data lost due to any error that can occur.
 * "Man Pages":
