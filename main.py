@@ -1,5 +1,3 @@
-#! /usr/bin/python
-
 import pandas as pd
 import csv
 from datetime import time, date, datetime
@@ -7,8 +5,9 @@ import functions
 import time
 ################################ READING HISTORICAL DATA ########################################################################
 
-historical_records = pd.read_csv('records.csv', parse_dates=True, infer_datetime_format=True)
+historical_records = pd.read_csv('records.csv')
 historical_records = historical_records.sort_values('Date', ascending = True)
+historical_records['Date'] = pd.to_datetime(historical_records['Date']).dt.date
 
 ################################# THE GAME!!! ##############################################################
 proceed = 1
@@ -24,6 +23,7 @@ Or Type in a number below.
 (2) A list of all things tracked.
 (3) The last 5 Entries
 (4) For Stats and Charts
+(5) Backup Data
 (stop) To stop the program.
 
 ----------------------------------------------------------------------
@@ -79,7 +79,7 @@ Or Type in a number below.
             track = input(f'It looks like "{subject.upper()}" is new to our records. Would you like\n'
                           f'to start tracking it? (y/n): ').lower()
             if track == 'y':
-                new_record = pd.DataFrame({'Subject': [subject], 'Date': [date], 'Hours': [hours]})
+                new_record = pd.DataFrame({'Subject': [subject], 'Date': [pd.Timestamp(date).date], 'Hours': [hours]})
                 functions.save(new_record,historical_records)
                 #This is the back up save. Can be recovered if original data is corrupted.
                 functions.backup(historical_records)
@@ -89,14 +89,20 @@ Or Type in a number below.
                 time.sleep(1.5)
                 break
         else:
+            print('----------------------------------------------------------------------')
             track = input(f'You are about to enter that you have studied [{subject.swapcase()}] for [{hours}] hours\n'
-                          f'on [{date.swapcase()}]. Is this correct? (y/n): ').lower()
+                          f'on [{date}]. Is this correct? (y/n): ').lower()
+            print('----------------------------------------------------------------------')
             if track == 'y':
                 new_record = pd.DataFrame({'Subject': [subject], 'Date': [date], 'Hours': [hours]})
                 functions.save(new_record, historical_records)
                 # This print statement helps verify that nothing went wrong in the code.             
                 functions.backup(historical_records)
                 break
+    elif '5' in first_input:
+        functions.clear_terminal()
+        print('These are the last ten records. If they look correct, then backup is safe.\n\n')
+        functions.backup(historical_records)
     elif len(first_input) != 3: # This is the very last one!
         print('There should only be 4 entries: x x x x.')
     elif 'stop' in first_input:
