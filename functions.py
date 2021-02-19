@@ -279,10 +279,9 @@ def weekly_rolling_avg_graph(historical_records):
 # This is the initial save
 def save(new_record, historical_records):
     # Updating the historical records to reflect the new entry
-    updated_historical_records = historical_records.append(new_record, ignore_index=True)
+    updated_historical_records = historical_records.append(new_record)
     # This is the main save. Could be corrupted by faulty code.
-    updated_historical_records['Date'] = pd.to_datetime(updated_historical_records['Date']).dt.date
-    updated_historical_records.to_csv('records.csv', sep = ',', index = False)
+    updated_historical_records.to_csv('records.csv', index = False)
     ############################### Backup #########################################
 # This is an independent backup save in case the original save gets messed up
 def backup(historical_records):
@@ -345,11 +344,6 @@ def tracker_save_decisions(first_input, historical_records):
         subject, date, hours, new_record = tracker(historical_records)
     elif first_input[0] == '2':
         subject, date, hours, new_record = tracker(historical_records)
-    elif len(first_input) == 3:
-        subject = first_input[0]
-        date = first_input[1]
-        hours = first_input[2]
-        new_record = [subject,date,hours]
     #! Add a way to automatically save data locally to a different file for backup
     would_you_like_to_save = input('Would You like to enter this data? y/n: ')
     if 'y' in would_you_like_to_save:
@@ -358,7 +352,7 @@ def tracker_save_decisions(first_input, historical_records):
             track = input(f'It looks like "{subject.upper()}" is new to our records. Would you like\n'
                             f'to start tracking it? (y/n): ').lower()
             if track == 'y':
-                new_record = pd.DataFrame({'Subject': [subject], 'Date': [pd.Timestamp(date).date], 'Hours': [hours]})
+                new_record = pd.DataFrame({'Subject': [subject], 'Date': [date], 'Hours': [hours]})
                 save(new_record,historical_records)
                 #This is the back up save. Can be recovered if original data is corrupted.
                 backup(historical_records)
@@ -393,7 +387,7 @@ def time_calculator_save_decisions(first_input, historical_records):
             track = input(f'It looks like "{subject.upper()}" is new to our records. Would you like\n'
                             f'to start tracking it? (y/n): ').lower()
             if track == 'y':
-                new_record = pd.DataFrame({'Subject': [subject], 'Date': [pd.Timestamp(date).date], 'Hours': [hours]})
+                new_record = pd.DataFrame({'Subject': [subject], 'Date': [date], 'Hours': [hours]})
                 save(new_record,historical_records)
                 #This is the back up save. Can be recovered if original data is corrupted.
                 backup(historical_records)

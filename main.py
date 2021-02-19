@@ -96,7 +96,13 @@ while True:
                 track = input(f'It looks like "{subject.upper()}" is new to our records. Would you like\n'
                             f'to start tracking it? (y/n): ').lower()
                 if track == 'y':
-                    new_record = pd.DataFrame({'Subject': [subject], 'Date': [pd.Timestamp(date).date], 'Hours': [hours]})
+                    new_record = pd.DataFrame(
+                        
+                        {'Subject': [subject], 
+                        'Date': [date], 
+                        'Hours': [hours]
+                        }
+                    )
                     functions.save(new_record,historical_records)
                     #This is the back up save. Can be recovered if original data is corrupted.
                     functions.backup(historical_records)
