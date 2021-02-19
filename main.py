@@ -2,6 +2,7 @@ import pandas as pd
 import csv
 from datetime import time, date, datetime
 import functions
+import help
 import time
 ################################ READING HISTORICAL DATA ########################################################################
 
@@ -10,20 +11,22 @@ historical_records = historical_records.sort_values('Date', ascending = True)
 historical_records['Date'] = pd.to_datetime(historical_records['Date']).dt.date
 
 ################################# THE GAME!!! ##############################################################
-stop = False
-while stop == False:
+
+while True:
     functions.clear_terminal()
     print("""
 ----------------------------------------------------------------------
 Enter in a record formatted like: Python 01/01/21 1.5 \n
 Or Type in a number below.
 
-(1) Time Calculator: If you know when, but not how many.
-(2) A list of all things tracked.
-(3) The last 5 Entries
-(4) For Stats and Charts
-(5) Backup Data
-(9) To stop the program.
+(1) Time Calculator: If you know when, but not how many hours you studied
+(2) Stopwatch: A built in stopwatch to track time studied
+(3) A list of all things tracked
+(4) The last 5 Entries
+(5) For Stats and Charts
+(6) Backup Data
+(7) Help
+(9) To stop the program
 
 ----------------------------------------------------------------------
     """)
@@ -43,14 +46,16 @@ Or Type in a number below.
     elif '1' in first_input[0]:
         # Create a time calculator e.g. 15:36 - 12:36 = 3 Hours
         functions.time_calculator()
-    elif '2' in first_input:
+    elif '2' in first_input[0]:
+        functions.tracker_save_decisions(first_input, historical_records)
+    elif '3' in first_input:
         print(f'Subjects Tracked: {historical_records.Subject.unique()}')
         cont = input('Press "Enter" to continue: ')
-    elif '3' in first_input:
+    elif '4' in first_input:
         functions.clear_terminal()
         print(f'The following are your last 5 entries: \n {historical_records[-5:]}')
         cont = input('Press "Enter" to continue: ')
-    elif '4' in first_input:
+    elif '5' in first_input:
             data_type = input('Would You like (1)Graphs, (2)Data, or (3)Both?: ')
             print('Not quite ready. Check back in a couple of days.')
             functions.clear_terminal()
@@ -72,7 +77,7 @@ Or Type in a number below.
                 functions.hours_studied_per_day(historical_records)
 
     elif len(first_input) == 3:
-        # Here we are going to start tracking.
+        # Here we are going to start saving to the database
         subject = first_input[0]
         date = first_input[1]
         hours = first_input[2]
@@ -101,11 +106,11 @@ Or Type in a number below.
                 functions.save(new_record, historical_records)
                 # This print statement helps verify that nothing went wrong in the code.             
                 functions.backup(historical_records)
-    elif '5' in first_input:
+    elif '6' in first_input:
         functions.clear_terminal()
         print('These are the last ten records. If they look correct, then backup is safe.\n\n')
         functions.backup(historical_records)
-    elif len(first_input) != 3: # This is the very last one!
-        print('There should only be 4 entries: x x x x.')
+    elif '7' in first_input:
+        help.help()
 
 
