@@ -11,65 +11,83 @@ import functions
 import datetime
 import os
 
+# Removing an entry 
 
-##################################### If you don't have the correct files in your directory ##########################################################
+historical_records = pd.read_csv('records.csv', parse_dates = True, infer_datetime_format = True)
+historical_records = historical_records.sort_values('Date', ascending = True)
+historical_records['Date'] = pd.to_datetime(historical_records['Date']).dt.date
 
-def file_checking():
-    functions.clear_terminal()
-    # Check to see if the correct csv files are in the directory
-    files_in_directory = [file for file in os.listdir('.')]
-    # If they are not, put them there
-    if 'record.csv' not in files_in_directory:
-        no_record = True
-        # This just tells the terminal (mac/linux)
-        new_records = os.system('touch records.csv')
-    if 'backups.csv' not in files_in_directory:
-        no_backup = True
-        new_backup = os.system('touch backup.csv')
-    if (no_record == True )and (no_backup == True):
-        print('You have neither a record.csv nor backup.csv')
-        print('I will create them for you ')
-        cont = input('Press "Enter" to continue. ')
-file_checking()
+############################################ REMOVING AN ENTRY ###################################################
 
-##################################### If you have no data in your files ##############################################################################
+#! Instead of showing the user the historical records, maybe just show the last 20.
+#! Better yet, just show the last entry for each subject.
+def remove(historical_records):
+    while True:
+        try:
+            # Clearing the terminal to reduce clutter
+            functions.clear_terminal()
+            last_items_entered = historical_records.groupby('Subject').last()
+            print(f'These are the last records entered BY SUBJECT\n\n'
+                    f'{last_items_entered}\n\n')
+            # Asking the user which entry they would like to remove
+            item_to_remove = input('Type in the SUBJECT and DATE of the entry you would\n'
+            'like to remove: ').lower().split()
 
-def first_data():
-    
-    empty_records_file = os.stat("records.csv").st_size == 0
-    if empty_records_file == True:
-        # Create the column names "Subject","Date","Hours" in the empty records.csv.
-        historical_data = pd.DataFrame(columns = ['Subject','Date','Hours'])
+            # Defining the subject and date
+            subject = item_to_remove[0]
+            date = pd.to_datetime(item_to_remove[1]).date()
 
-        # Sample Data
-        subject = 'python'
-        date = '02/25/25'
-        hours = '1.5'
+            # Creating a mask that identifies in the dataframe which record the user if referring to.
+            removal_mask  = (historical_records['Subject'] == subject) & (historical_records['Date'] == date)
+            # Reterning the entire row the user is referring to.
+            item_to_remove_row = historical_records[removal_mask]
+            # Grabing the index number/unique identifier.
+            item_to_remove_index = historical_records.index[removal_mask][0]
+            print('----------------------------------------------------------------------')
+            print(f'To Remove: "{subject} {date}"\n\n')
+            cont = input(f'Would you like to continue? [Y/n]: ').lower()
+            print('----------------------------------------------------------------------')
+            # This flow makes it to where the user can press any key except "n" to continue
+            if 'n' in cont:
+                pass
+            else:
+                # Dropping the entry.
+                historical_records.drop([item_to_remove_index], inplace = True)
+                print(f'Ok. Removing {subject} {date}"\n')
+                time.sleep(1.5)
+                print(f'\n\n"{subject} {date}" has been removed ')
+                # Saving the new records.
+                historical_records['Date'] = pd.to_datetime(historical_records['Date']).dt.date
+                historical_records.to_csv('records.csv', sep = ',', index = False)
+                cont = input('Would you like me to update the backup.csv as well? [Y/n]: ').lower()
+                if 'n' in cont:
+                    break
+                else:
+                    historical_records['Date'] = pd.to_datetime(historical_records['Date']).dt.date
+                    historical_records.to_csv('backup.csv', sep = ',', index = False)
 
-        # Creating the new dataframe.
-        new_record = pd.DataFrame(
-            {
-                'Subject': [subject],
-                'Date': [date],
-                'Hours': [hours]
-                
-            }
-        )
+                cont = input('Would you like to remove another? [Y/n]: ')
+                if 'n' in cont:
+                    break
+                else:
+                    pass
+        except IndexError:
+            print('\n...')
+            time.sleep(1.5)
+            print('It doesn\'t look like I have that in the system\n\n ')
+            time.sleep(1.5)
+            cont = input('Would you like to retry? [Y/n]: ')
+            if 'n' in cont:
+                break
+        except ValueError:
+            print('\n...')
+            time.sleep(1.5)
+            print('\nYou might have entered in some information wrong...\n')
+            print('It doesn\'t look like I have that in the system\n\n ')
+            time.sleep(1.5)
+            cont = input('Would you like to retry? [Y/n]: ')
+            if 'n' in cont:
+                break
 
-        historical_data = historical_data.append(new_record)
-        historical_data.to_csv('records.csv', index = False)
+remove(historical_records)
 
-
-
-# try:
-#     historical_records = pd.read_csv('test.csv', parse_dates = True, infer_datetime_format = True)
-#     historical_records = historical_records.sort_values('Date', ascending = True)
-
-#     subject = 'python'
-#     # Creating datetime format with only the date. Not seconds or anything.
-#     date = pd.to_datetime('02/02/25').date()
-#     hours = 1.5
-#     # Creating a new record which will be appended to an empty dataframe
-#     new_record = [subject,date,hours]
-# except NameError:
-#     print('There is no data in this file')

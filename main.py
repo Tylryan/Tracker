@@ -17,80 +17,122 @@ functions.first_data()
 
 historical_records = pd.read_csv('records.csv', parse_dates = True, infer_datetime_format = True)
 historical_records = historical_records.sort_values('Date', ascending = True)
-# historical_records['Date'] = pd.to_datetime(historical_records['Date']).dt.date
+historical_records['Date'] = pd.to_datetime(historical_records['Date']).dt.date
 ############################################### THE GAME!!! #####################################################################
 
 while True:
     try:
         functions.clear_terminal()
         print("""
-    ----------------------------------------------------------------------
-    Enter in a record formatted like: Python 01/01/21 1.5 \n
-    Or Type in a number below.
+Enter in a record formatted like: Python 01/01/21 1.5 \n
+Or Type in a number below.
 
-    (1) Time Calculator: If you know when, but not how many hours you studied
-    (2) Stopwatch: A built in stopwatch to track time studied
-    (3) A list of all things tracked
-    (4) The last 5 Entries
-    (5) For Stats and Charts
-    (6) Backup Data
-    (7) Help
-    (9) To exit the program
+(1) Time Calculator
+(2) Stopwatch
+(3) Tracked Subjects
+(4) Last 5 Entries
+(5) Stats and Charts
+(6) Backup Save
+(7) Help
+(8) Remove Entry
 
-    ----------------------------------------------------------------------
+**********************************************************************
+(9) To exit the program
+**********************************************************************
         """)
         #! This shows you the last entry for each item.
         last_items_entered = historical_records.groupby('Subject').last()
-        print(f'These are the last records entered by subject\n\n'
+        print(f'These are the last records entered BY SUBJECT\n\n'
                 f'{last_items_entered}\n\n')
         first_input = input('What would you like to do? ').lower().split()
 
         print('----------------------------------------------------------------------')
     #############################################################################################################
-        if '9' in first_input:
+        if '9' == first_input[0]:
             print('Application stopped')
             time.sleep(1.5)
+            functions.clear_terminal()
             break
-
-        elif '1' in first_input[0]:
+        elif '1' == first_input[0]:
             # Create a time calculator e.g. 15:36 - 12:36 = 3 Hours
             functions.time_calculator_save_decisions(first_input, historical_records)
-        elif '2' in first_input[0]:
+        elif '2' == first_input[0]:
             functions.tracker_save_decisions(first_input, historical_records)
-        elif '3' in first_input:
+        elif '3' == first_input[0]:
             print(f'Subjects Tracked: {historical_records.Subject.unique()}')
             cont = input('Press "Enter" to continue: ')
-        elif '4' in first_input:
+        elif '4' == first_input[0]:
             functions.clear_terminal()
             print(f'The following are your last 5 entries: \n {historical_records[-5:]}')
             cont = input('Press "Enter" to continue: ')
-        elif '5' in first_input:
-                data_type = input('Would You like (1)Graphs, (2)Data, or (3)Both?: ')
+        elif '5' == first_input[0]:
+                data_type = input('Would You like (1)Graphs, (2)Data, or (3)Both?: ').split()
                 print('Not quite ready. Check back in a couple of days.')
                 functions.clear_terminal()
-                if '1' in data_type:
+                if len(data_type) > 1:
+                    print('Please try again...')
+                    cont = input('Press "Enter" to continue: ')
+                elif '1' in data_type[0]:
+                    # These can be done with limited data
                     #! A pie plot showing what you spend most of your time studying.
                     functions.pie_hours_by_subject(historical_records)
-                    #! This shows you the total hours studied by subject for the last week (7 DAYS).
-                    functions.past_seven_days_graph(historical_records)
-                    #! A function that returns the 7-day rolling average of hours studied.
-                    functions.weekly_rolling_avg_graph(historical_records)
 
-                elif '2' in data_type:
+                    # These must have at least seven days of data
+                    try:
+                        #! This shows you the total hours studied by subject for the last week (7 DAYS).
+                        functions.past_seven_days_graph(historical_records)
+                        #! A function that returns the 7-day rolling average of hours studied.
+                        functions.weekly_rolling_avg_graph(historical_records)
+                    except IndexError:
+                        time.sleep(0.5)
+                        pass
+
+                elif '2' in data_type[0]:
+
+                    #These can work will limited data
                     #! Total Hours Studied by Subject
                     functions.hours_by_subject(historical_records)
 
-                    #! Hours studied by subject over the past week.
-                    functions.past_seven_days(historical_records)
+                    # These must have at least 7 days logged
+                    try:
+                        #! Hours studied by subject over the past week.
+                        functions.past_seven_days(historical_records)
+                        #! Average hours studied per day by subject.
+                        functions.hours_studied_per_day(historical_records)
+                    except IndexError:
+                        pass
+
+                elif '3' in data_type[0]:
+                    # Graphs
+                    #! A pie plot showing what you spend most of your time studying.
+                    functions.pie_hours_by_subject(historical_records)
+                    #! This shows you the total hours studied by subject for the last week (7 DAYS).
+                    try:
+                        functions.past_seven_days_graph(historical_records)
+                        #! A function that returns the 7-day rolling average of hours studied.
+                        functions.weekly_rolling_avg_graph(historical_records)
+                    except IndexError:
+                        pass
+                    # Dataframes
+                    #! Total Hours Studied by Subject
+                    functions.hours_by_subject(historical_records)
+                    try:
+                        #! Hours studied by subject over the past week.
+                        functions.past_seven_days(historical_records)
+                    except IndexError:
+                        pass
                     #! Average hours studied per day by subject.
                     functions.hours_studied_per_day(historical_records)
+                else:
+                    print('Please try again...')
+                    cont = input('Press "Enter" to continue: ')
+
 
         elif len(first_input) == 3:
             # Here we are going to start saving to the database
             subject = first_input[0]
             date = first_input[1]
             hours = first_input[2]
-            new_record = [subject,date,hours]
             #! Add a way to automatically save data locally to a different file for backup
             if subject not in historical_records.Subject.unique():
                 track = input(f'It looks like "{subject.upper()}" is new to our records. Would you like\n'
@@ -121,13 +163,28 @@ while True:
                     functions.save(new_record, historical_records)
                     # This print statement helps verify that nothing went wrong in the code.             
                     functions.backup(historical_records)
-        elif '6' in first_input:
+
+        elif '6' == first_input[0]:
             functions.clear_terminal()
-            print('These are the last ten records. If they look correct, then backup is safe.\n\n')
             functions.backup(historical_records)
-        elif '7' in first_input:
+        elif '7' == first_input[0]:
             help.help()
+        elif '8' == first_input[0]:
+            functions.remove(historical_records)
+
+        else:
+            print('Please Try again...')
+            cont = input('Press "Enter" to continue: ')
     except KeyboardInterrupt:
-        print('\n\nYou have stopped the program with ^C')
-        print('You can also stop the program by by typing "9"')
+        print('\n\n*****************************************************')
+        print('You have stopped the program with "^C"')
+        print('\n*****************************************************')
+        time.sleep(2)
+        functions.clear_terminal()
         break
+    # except IndexError:
+    #     print('\nYou can\'t press "Enter" here ')
+    #     time.sleep(2.0)
+    #     print('It would not do anything anyways silly\n\n ')
+    #     time.sleep(2.0)
+    #     enter = input('Press "Enter" to continue: ')

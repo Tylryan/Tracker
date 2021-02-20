@@ -12,7 +12,6 @@ import os
     #* Figure out how to subtract 2 group by with .diff().
     #* Last 7 days grouped minus 8 to 14 days grouped.
     #* This week you studied Python for 5 more hours.
-#! I would like to see a built in stop watch feature.
 #! I would also like to see a desktop version. Perhaps using Tkinter.
 
 
@@ -132,8 +131,8 @@ def time_calculator():
         print(f'\n\nYou have studied for {hours} hours.')
         # Pausing the screen to let the user digest the information. Allows them to continue at their own pace.
         cont = input('Press "Enter" to continue: ')
+        print('----------------------------------------------------------------------\n')
         # Clearing the terminal to reduce clutter.
-        clear_terminal()
     # If the input doesn't work by user error or the code's, then it won't break the code, it will just restart to the top.
         return subject, date, hours, new_record
     except:
@@ -147,6 +146,7 @@ def time_calculator():
 
 # This will show the user the total hours spent studying each subject from the time they started to use the program.
 def hours_by_subject(historical_records):
+
     # Grouping the data by subject and summing the hours. Then turning that into a dataframe.
     total_hours = pd.DataFrame(historical_records.groupby('Subject').Hours.sum())
     # Renaming the column to "Hours Studied"
@@ -156,6 +156,8 @@ def hours_by_subject(historical_records):
         f'{total_hours}')
     # Pausing the screen to let the user digest the information. Allows them to continue at their own pace.
     enter = input('Press "Enter" to continue: ')
+
+
 
 # This will show the user the total amount of time spent studying for the past seven days (Weekly)
 def past_seven_days(historical_records):
@@ -208,6 +210,7 @@ def pie_hours_by_subject(historical_records):
     plt.tight_layout()
     # Displaying the graph to the user
     plt.show()
+
 
 # Creating a bar chart that displays total hours studied by subject for the past seven days or week.
 def past_seven_days_graph(historical_records):
@@ -279,9 +282,10 @@ def weekly_rolling_avg_graph(historical_records):
 # This is the initial save
 def save(new_record, historical_records):
     # Updating the historical records to reflect the new entry
+    historical_records['Date'] = pd.to_datetime(historical_records['Date']).dt.date
     updated_historical_records = historical_records.append(new_record)
     # This is the main save. Could be corrupted by faulty code.
-    updated_historical_records.to_csv('records.csv', index = False)
+    updated_historical_records.to_csv('records.csv', sep = ',', index = False)
     ############################### Backup #########################################
 # This is an independent backup save in case the original save gets messed up
 def backup(historical_records):
@@ -340,70 +344,172 @@ def tracker(historical_records):
 
 def tracker_save_decisions(first_input, historical_records):
     clear_terminal()
-    if len(first_input) == 2: # NOTE THIS ALLOWS YOU TO AUTOMATICALL GO TO TIME TRACKING WITHOUT PRESSING 2.
-        subject, date, hours, new_record = tracker(historical_records)
-    elif first_input[0] == '2':
-        subject, date, hours, new_record = tracker(historical_records)
-    #! Add a way to automatically save data locally to a different file for backup
-    would_you_like_to_save = input('Would You like to enter this data? y/n: ')
-    if 'y' in would_you_like_to_save:
+    try:
 
-        if subject not in historical_records.Subject.unique():
-            track = input(f'It looks like "{subject.upper()}" is new to our records. Would you like\n'
-                            f'to start tracking it? (y/n): ').lower()
-            if track == 'y':
-                new_record = pd.DataFrame({'Subject': [subject], 'Date': [date], 'Hours': [hours]})
-                save(new_record,historical_records)
-                #This is the back up save. Can be recovered if original data is corrupted.
-                backup(historical_records)
+        if len(first_input) == 2: # NOTE THIS ALLOWS YOU TO AUTOMATICALL GO TO TIME TRACKING WITHOUT PRESSING 2.
+            subject, date, hours, new_record = tracker(historical_records)
+        elif first_input[0] == '2':
+            subject, date, hours, new_record = tracker(historical_records)
+        #! Add a way to automatically save data locally to a different file for backup
+        would_you_like_to_save = input('Would You like to enter this data? y/n: ')
+        if 'y' in would_you_like_to_save:
+
+            if subject not in historical_records.Subject.unique():
+                track = input(f'It looks like "{subject.upper()}" is new to our records. Would you like\n'
+                                f'to start tracking it? (y/n): ').lower()
+                if track == 'y':
+                    new_record = pd.DataFrame(
+                                            {'Subject': [subject],
+                                            'Date': [date], 
+                                            'Hours': [hours]
+                                            }
+                                        )
+                    save(new_record,historical_records)
+                    #This is the back up save. Can be recovered if original data is corrupted.
+                    backup(historical_records)
+                else:
+                    print(f'\n\n{subject.upper()} has NOT been added to the record books.')
+                    time.sleep(1.5)
             else:
-                print(f'\n\n{subject.upper()} has NOT been added to the record books.')
-                time.sleep(1.5)
+                print('----------------------------------------------------------------------')
+                track = input(f'You are about to enter that you have studied [{subject.swapcase()}] for [{hours}] hours\n'
+                                f'on [{date}]. Is this correct? (y/n): ').lower()
+                print('----------------------------------------------------------------------')
+                if track == 'y':
+                    new_record = pd.DataFrame(
+                                            {'Subject': [subject],
+                                            'Date': [date], 
+                                            'Hours': [hours]
+                                            }
+                                        )
+                    save(new_record, historical_records)
+                    # This print statement helps verify that nothing went wrong in the code.             
+                    backup(historical_records)
         else:
-            print('----------------------------------------------------------------------')
-            track = input(f'You are about to enter that you have studied [{subject.swapcase()}] for [{hours}] hours\n'
-                            f'on [{date}]. Is this correct? (y/n): ').lower()
-            print('----------------------------------------------------------------------')
-            if track == 'y':
-                new_record = pd.DataFrame({'Subject': [subject], 'Date': [date], 'Hours': [hours]})
-                save(new_record, historical_records)
-                # This print statement helps verify that nothing went wrong in the code.             
-                backup(historical_records)
-    else:
-        print('Your data has NOT been saved ')
-        time.sleep(1.5)
+            print('Your data has NOT been saved ')
+            time.sleep(1.5)
+    except UnboundLocalError:
+        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        print('Nice Try. You almost broke me. Enter in something valid next time\n\n ')
+        cont = input('Press "Enter" to continue: ')
 
 ####################################### Time Calculator Save ##############################################################
 def time_calculator_save_decisions(first_input, historical_records):
-    clear_terminal()
-    if first_input[0] == '1':
-        subject, date, hours, new_record = time_calculator()
-        new_record = [subject,date,hours]
-    #! Add a way to automatically save data locally to a different file for backup
-    would_you_like_to_save = input('Would You like to enter this data? y/n: ')
-    if 'y' in would_you_like_to_save:
+    try:
+        clear_terminal()
+        if first_input[0] == '1':
+            subject, date, hours, new_record = time_calculator()
+        #! Add a way to automatically save data locally to a different file for backup
+        would_you_like_to_save = input('Would You like to enter this data? y/n: ')
+        if 'y' in would_you_like_to_save:
 
-        if subject not in historical_records.Subject.unique():
-            track = input(f'It looks like "{subject.upper()}" is new to our records. Would you like\n'
-                            f'to start tracking it? (y/n): ').lower()
-            if track == 'y':
-                new_record = pd.DataFrame({'Subject': [subject], 'Date': [date], 'Hours': [hours]})
-                save(new_record,historical_records)
-                #This is the back up save. Can be recovered if original data is corrupted.
-                backup(historical_records)
+            if subject not in historical_records.Subject.unique():
+                track = input(f'It looks like "{subject.upper()}" is new to our records. Would you like\n'
+                                f'to start tracking it? (y/n): ').lower()
+                if track == 'y':
+                    new_record = pd.DataFrame(
+                                            {'Subject': [subject],
+                                            'Date': [date], 
+                                            'Hours': [hours]
+                                            }
+                                        )
+                    save(new_record,historical_records)
+                    #This is the back up save. Can be recovered if original data is corrupted.
+                    backup(historical_records)
+                else:
+                    print(f'\n\n{subject.upper()} has NOT been added to the record books.')
+                    time.sleep(1.5)
             else:
-                print(f'\n\n{subject.upper()} has NOT been added to the record books.')
-                time.sleep(1.5)
+                print('----------------------------------------------------------------------')
+                track = input(f'You are about to enter that you have studied [{subject.swapcase()}] for [{hours}] hours\n'
+                                f'on [{date}]. Is this correct? (y/n): ').lower()
+                print('----------------------------------------------------------------------')
+                if track == 'y':
+                    new_record = pd.DataFrame(
+                                            {'Subject': [subject],
+                                            'Date': [date], 
+                                            'Hours': [hours]
+                                            }
+                                        )
+                    save(new_record, historical_records)
+                    # This print statement helps verify that nothing went wrong in the code.             
+                    backup(historical_records)
         else:
+            print('Your data has NOT been saved ')
+            time.sleep(1.5)
+    except UnboundLocalError:
+        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        print('Nice Try. You almost broke me. Enter in something valid next time\n\n ')
+        cont = input('Press "Enter" to continue: ')
+
+############################################ REMOVING AN ENTRY ###################################################
+
+#! Instead of showing the user the historical records, maybe just show the last 20.
+#! Better yet, just show the last entry for each subject.
+def remove(historical_records):
+    while True:
+        try:
+            # Clearing the terminal to reduce clutter
+            clear_terminal()
+            last_items_entered = historical_records.groupby('Subject').last()
+            print(f'These are the last records entered BY SUBJECT\n\n'
+                    f'{last_items_entered}\n\n')
+            # Asking the user which entry they would like to remove
+            item_to_remove = input('Type in the SUBJECT and DATE of the entry you would\n'
+            'like to remove: ').lower().split()
+
+            # Defining the subject and date
+            subject = item_to_remove[0]
+            date = pd.to_datetime(item_to_remove[1]).date()
+
+            # Creating a mask that identifies in the dataframe which record the user if referring to.
+            removal_mask  = (historical_records['Subject'] == subject) & (historical_records['Date'] == date)
+            # Grabing the index number/unique identifier.
+            item_to_remove_index = historical_records.index[removal_mask][0]
             print('----------------------------------------------------------------------')
-            track = input(f'You are about to enter that you have studied [{subject.swapcase()}] for [{hours}] hours\n'
-                            f'on [{date}]. Is this correct? (y/n): ').lower()
+            print(f'To Remove: "{subject} {date}"\n\n')
+            cont = input(f'Would you like to continue? [Y/n]: ').lower()
             print('----------------------------------------------------------------------')
-            if track == 'y':
-                new_record = pd.DataFrame({'Subject': [subject], 'Date': [date], 'Hours': [hours]})
-                save(new_record, historical_records)
-                # This print statement helps verify that nothing went wrong in the code.             
-                backup(historical_records)
-    else:
-        print('Your data has NOT been saved ')
-        time.sleep(1.5)
+            # This flow makes it to where the user can press any key except "n" to continue
+            if 'n' in cont:
+                pass
+            else:
+                # Dropping the entry.
+                historical_records.drop([item_to_remove_index], inplace = True)
+                print(f'Ok. Removing {subject} {date}"\n')
+                time.sleep(1.5)
+                print(f'\n\n"{subject} {date}" has been removed ')
+                # Saving the new records.
+                historical_records['Date'] = pd.to_datetime(historical_records['Date']).dt.date
+                historical_records.to_csv('records.csv', sep = ',', index = False)
+                # Checking to make sure it's ok to back up data
+                cont = input('Would you like me to update the backup.csv as well? [Y/n]: ').lower()
+                if 'n' in cont:
+                    break
+                else:
+                    # Saving the data
+                    historical_records['Date'] = pd.to_datetime(historical_records['Date']).dt.date
+                    historical_records.to_csv('backup.csv', sep = ',', index = False)
+
+                cont = input('Would you like to remove another? [Y/n]: ')
+                if 'n' in cont:
+                    break
+                else:
+                    pass
+        except IndexError:
+            print('\n...')
+            time.sleep(1.5)
+            print('It doesn\'t look like I have that in the system\n\n ')
+            time.sleep(1.5)
+            cont = input('Would you like to retry? [Y/n]: ')
+            if 'n' in cont:
+                break
+        except ValueError:
+            print('\n...')
+            time.sleep(1.5)
+            print('\nYou might have entered in some information wrong...\n')
+            print('It doesn\'t look like I have that in the system\n\n ')
+            time.sleep(1.5)
+            cont = input('Would you like to retry? [Y/n]: ')
+            if 'n' in cont:
+                break
