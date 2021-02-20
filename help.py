@@ -37,7 +37,7 @@ python    02/18/21   1.5
 (6) Backup Data
 (9) To exit the program
 
-Note: type "exit" to go back to the main screen.
+Note: type "back" to go back to the main screen.
         """)
         help = input('Type the number of the command you need help with. E.g. 2: ').lower().split()
         functions.clear_terminal()
@@ -89,14 +89,14 @@ cautious. Manually back up data and try to rerun the program, if the same thing
 happens, then it would be advisable to stop using the program.
             
             """)
-            cont = input('Press "Enter" to continue or type "exit" \n'
+            cont = input('Press "Enter" to continue or type "back" \n'
             'to go back to the main menu ')
-            if 'exit' in cont:
+            if 'back' in cont:
                 break
             functions.clear_terminal()
 
 ########################################## Time Calculator #####################################################################
-        elif 'exit' in help:
+        elif 'back' in help:
             print('Getting out of help. Have fun! ')
             time.sleep(1.5)
             functions.clear_terminal()
@@ -140,9 +140,9 @@ Prompt: What would you like to do?
 Input: python 02/08/21
             
             """)
-            cont = input('Press "Enter" to continue or type "exit" \n'
+            cont = input('Press "Enter" to continue or type "back" \n'
             'to go back to the main menu ')
-            if 'exit' in cont:
+            if 'back' in cont:
                 break
             functions.clear_terminal()
 
@@ -158,9 +158,9 @@ It can also be used to see if you have any tasks being tracked that are misspell
 
             
             """)
-            cont = input('Press "Enter" to continue or type "exit" \n'
+            cont = input('Press "Enter" to continue or type "back" \n'
             'to go back to the main menu ')
-            if 'exit' in cont:
+            if 'back' in cont:
                 break
             functions.clear_terminal()
 
@@ -176,9 +176,9 @@ as another way to prevent duplicate entries.
 
             
             """)
-            cont = input('Press "Enter" to continue or type "exit" \n'
+            cont = input('Press "Enter" to continue or type "back" \n'
             'to go back to the main menu ')
-            if 'exit' in cont:
+            if 'back' in cont:
                 break
             functions.clear_terminal()
 
@@ -221,9 +221,9 @@ Example:
 
             
             """)
-            cont = input('Press "Enter" to continue or type "exit" \n'
+            cont = input('Press "Enter" to continue or type "back" \n'
             'to go back to the main menu ')
-            if 'exit' in cont:
+            if 'back' in cont:
                 break
             functions.clear_terminal()
 ########################################## Backup Save #####################################################################
@@ -244,9 +244,9 @@ Example:
 
             
             """)
-            cont = input('Press "Enter" to continue or type "exit" \n'
+            cont = input('Press "Enter" to continue or type "back" \n'
             'to go back to the main menu ')
-            if 'exit' in cont:
+            if 'back' in cont:
                 break
             functions.clear_terminal()
 
@@ -267,9 +267,9 @@ Example:
 
             
             """)
-            cont = input('Press "Enter" to continue or type "exit" \n'
+            cont = input('Press "Enter" to continue or type "back" \n'
             'to go back to the main menu ')
-            if 'exit' in cont:
+            if 'back' in cont:
                 break
             functions.clear_terminal()
     

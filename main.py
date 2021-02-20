@@ -55,43 +55,54 @@ Or Type in a number below.
             break
         ########################################## DEFAULT INPUT #################################################
         elif len(first_input) == 3:
+
             # Here we are going to start saving to the database
             subject = first_input[0]
             date = first_input[1]
             hours = first_input[2]
             #! Add a way to automatically save data locally to a different file for backup
-            if subject not in historical_records.Subject.unique():
-                track = input(f'It looks like "{subject.upper()}" is new to our records. Would you like\n'
-                            f'to start tracking it? [Y/n]: ').lower()
-                if track == 'n':
-                    print(f'\n\n{subject.upper()} has NOT been added to the record books.')
-                    time.sleep(1.5)
-                    break
-                else:
-                    new_record = pd.DataFrame(
-                        
-                        {'Subject': [subject], 
-                        'Date': [date], 
-                        'Hours': [hours]
-                        }
-                    )
-                    print('----------------------------------------------------------------------')
-                    functions.save(new_record,historical_records)
-                    #This is the back up save. Can be recovered if original data is corrupted.
-                    functions.backup(historical_records)
-
+            if pd.to_datetime(date) > datetime.now():
+                print('You have entered in a date that\'s in the future cheater ')
+                cont = input('\n\nPress "Enter to try again ')
+                functions.clear_terminal()
+                pass
             else:
-                print('----------------------------------------------------------------------')
-                track = input(f'You are about to enter that you have studied [{subject.swapcase()}] for [{hours}] hours\n'
-                            f'on [{date}]. Is this correct? [Y/n]: ').lower()
-                print('----------------------------------------------------------------------')
-                if track == 'n':
-                    pass
+                if subject not in historical_records.Subject.unique():
+                    track = input(f'It looks like "{subject.upper()}" is new to our records. Would you like\n'
+                                f'to start tracking it? [Y/n]: ').lower()
+                    if track == 'n':
+                        print(f'\n\n{subject.upper()} has NOT been added to the record books.')
+                        time.sleep(1.5)
+                        break
+                    else:
+                        new_record = pd.DataFrame(
+                            
+                            {'Subject': [subject], 
+                            'Date': [date], 
+                            'Hours': [hours]
+                            }
+                        )
+                        print('----------------------------------------------------------------------')
+                        try: # This try and except allows incorrect values such as 12/29/39
+                            functions.save(new_record,historical_records)
+                            #This is the back up save. Can be recovered if original data is corrupted.
+                            functions.backup(historical_records)
+                        except TypeError and ValueError:
+                            print('Something went wrong')
+                            cont = input('Press "Enter" to continue ')
+
                 else:
-                    new_record = pd.DataFrame({'Subject': [subject], 'Date': [date], 'Hours': [hours]})
-                    functions.save(new_record, historical_records)
-                    # This print statement helps verify that nothing went wrong in the code.             
-                    functions.backup(historical_records)
+                    print('----------------------------------------------------------------------')
+                    track = input(f'You are about to enter that you have studied [{subject.swapcase()}] for [{hours}] hours\n'
+                                f'on [{date}]. Is this correct? [Y/n]: ').lower()
+                    print('----------------------------------------------------------------------')
+                    if track == 'n':
+                        pass
+                    else:
+                        new_record = pd.DataFrame({'Subject': [subject], 'Date': [date], 'Hours': [hours]})
+                        functions.save(new_record, historical_records)
+                        # This print statement helps verify that nothing went wrong in the code.             
+                        functions.backup(historical_records)
 
         #################################### HERE ARE ALL THE OPTIONS ##############################################
         elif '1' == first_input[0]:

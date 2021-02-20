@@ -47,18 +47,18 @@ def file_checking():
         # Creates csv files if both are not there
         if (no_record == True ) and (no_backup == True): # Both yes and no work 2-19-21
             print('You have neither a record.csv nor backup.csv')
-            new_files = input('I will create them for you if you want: y/n: ')
-            if 'y' in new_files:
+            new_files = input('I will create them for you if you want: [Y/n] ')
+            if 'n' in new_files:
+                print('No new files were created')
+                print('You are now leaving this program')
+                time.sleep(2)
+                exit_program = os.sys.exit()
+            else:
 
             # This just tells the terminal (mac/linux)
                 new_records = os.system('touch records.csv')
                 new_backup = os.system('touch backup.csv')
                 cont = input('Press "Enter" to continue ')
-            else:
-                print('No new files were created')
-                print('You are now leaving this program')
-                time.sleep(2)
-                exit_program = os.sys.exit()
     except: # This try except loop doesn't work
         print('One of your files might me missing ')
         print("Don't worry too much. Just copy and paste one to the other ")
@@ -237,6 +237,7 @@ def save(new_record, historical_records):
     updated_historical_records = historical_records.append(new_record)
     # This is the main save. Could be corrupted by faulty code.
     updated_historical_records.to_csv('records.csv', sep = ',', index = False)
+
     ############################### Backup #########################################
 # This is an independent backup save in case the original save gets messed up
 def backup(historical_records):
@@ -255,11 +256,15 @@ def backup(historical_records):
         # This give the user time to digest the the message above
         time.sleep(1.5)
     else:
-        # If the user wants to backup their data, this is the backup save that saves to a file called "backup.csv"
-        historical_records['Date'] = pd.to_datetime(historical_records['Date']).dt.date
-        historical_records.to_csv('backup.csv', sep = ',', index = False)
-        print('Your backup has been saved. ')
-        time.sleep(1.5)
+        try:
+            # If the user wants to backup their data, this is the backup save that saves to a file called "backup.csv"
+            historical_records['Date'] = pd.to_datetime(historical_records['Date']).dt.date
+            historical_records.to_csv('backup.csv', sep = ',', index = False)
+            print('Your backup has been saved. ')
+            time.sleep(1.5)
+        except TypeError and ValueError:
+            print('You have entered an incorrect date ')
+            cont = input('Press "Enter" to continue ')
 
 
 ############################### Stopwatch Saving ###################################################
@@ -268,34 +273,40 @@ def tracker(historical_records):
     while True:
         clear_terminal()
         try:
-            to_track = input('Insert the subject you would like to track and the current day ').lower().split()
-            subject = to_track[0]
-            date = to_track[1]
+            to_track = input('Enter the SUBJECT and DATE of the task you want to start: ').lower().split()
+            if 'back' in to_track:
+                break
+            else:
+                subject = to_track[0]
+                date = to_track[1]
+                if '/' or '-' not in date:
+                    print('You have not entered something correctly')
+                    cont = input('Press "Enter to continue ')
+                    break
+                # Clear the terminal here
+                print('This stopwatch returns values in terms of hours rounded to the hundredths\n\n'
+                'For example, 10 minutes will return 0.17 hours')
+                print('\n\n----------------------------------------------------------------------')
+                start_input = input('Time will be started after you press "Enter". ')
+                stopwatch_start = dt.datetime.now()
+                print(f'\nRecording Time: {stopwatch_start}')
+                print('----------------------------------------------------------------------')
 
-            # Clear the terminal here
-            print('This stopwatch returns values in terms of hours rounded to the hundredths\n\n'
-            'For example, 10 minutes will return 0.17 hours')
-            print('\n\n----------------------------------------------------------------------')
-            start_input = input('Time will be started after you press "Enter". ')
-            stopwatch_start = dt.datetime.now()
-            print(f'\nRecording Time: {stopwatch_start}')
-            print('----------------------------------------------------------------------')
+                end_input = input('\nTime will be stopped after you press "Enter"')
+                stopwatch_end = dt.datetime.now()
 
-            end_input = input('\nTime will be stopped after you press "Enter"')
-            stopwatch_end = dt.datetime.now()
+                studied = round((stopwatch_end - stopwatch_start).total_seconds() / 3600,2)
+                print(f'\nRecording Ended: {stopwatch_end}\n')
+                time.sleep(1.0)
+                # Clear Terminal
+                print('################################ && ##################################\n')
+                print(f'You have studied for {studied} hours')
+                print('\n################################ && ##################################\n\n\n')
+                cont = input('Press Enter to continue ')
 
-            studied = round((stopwatch_end - stopwatch_start).total_seconds() / 3600,2)
-            print(f'\nRecording Ended: {stopwatch_end}\n')
-            time.sleep(1.0)
-            # Clear Terminal
-            print('################################ && ##################################\n')
-            print(f'You have studied for {studied} hours')
-            print('\n################################ && ##################################\n\n\n')
-            cont = input('Press Enter to continue ')
-
-            hours = studied
-            new_record = [subject,date,hours]
-            return subject, date, hours, new_record
+                hours = studied
+                new_record = [subject,date,hours]
+                return subject, date, hours, new_record
         except IndexError:
                 print('\n...')
                 time.sleep(1.5)
@@ -304,55 +315,59 @@ def tracker(historical_records):
                 if 'n' in cont:
                     break
 def tracker_save_decisions(first_input, historical_records):
-    clear_terminal()
-    try:
+    while True:
+        clear_terminal()
+        try:
 
-        if len(first_input) == 2: # NOTE THIS ALLOWS YOU TO AUTOMATICALL GO TO TIME TRACKING WITHOUT PRESSING 2.
-            subject, date, hours, new_record = tracker(historical_records)
-        elif first_input[0] == '1':
-            subject, date, hours, new_record = tracker(historical_records)
-        #! Add a way to automatically save data locally to a different file for backup
-        would_you_like_to_save = input('Would You like to enter this data? y/n: ')
-        if 'y' in would_you_like_to_save:
-
-            if subject not in historical_records.Subject.unique():
-                track = input(f'It looks like "{subject.upper()}" is new to our records. Would you like\n'
-                                f'to start tracking it? (y/n): ').lower()
-                if track == 'y':
-                    new_record = pd.DataFrame(
-                                            {'Subject': [subject],
-                                            'Date': [date], 
-                                            'Hours': [hours]
-                                            }
-                                        )
-                    save(new_record,historical_records)
-                    #This is the back up save. Can be recovered if original data is corrupted.
-                    backup(historical_records)
-                else:
-                    print(f'\n\n{subject.upper()} has NOT been added to the record books.')
-                    time.sleep(1.5)
+            if len(first_input) == 2: # NOTE THIS ALLOWS YOU TO AUTOMATICALL GO TO TIME TRACKING WITHOUT PRESSING 2.
+                subject, date, hours, new_record = tracker(historical_records)
+            elif first_input[0] == '1':
+                subject, date, hours, new_record = tracker(historical_records)
+            #! Add a way to automatically save data locally to a different file for backup
+            would_you_like_to_save = input('Would You like to enter this data? [Y/n]: ')
+            if 'n' in would_you_like_to_save:
+                print('Your data has NOT been saved ')
+                time.sleep(1.5)
             else:
-                print('----------------------------------------------------------------------')
-                track = input(f'You are about to enter that you have studied [{subject.swapcase()}] for [{hours}] hours\n'
-                                f'on [{date}]. Is this correct? (y/n): ').lower()
-                print('----------------------------------------------------------------------')
-                if track == 'y':
-                    new_record = pd.DataFrame(
-                                            {'Subject': [subject],
-                                            'Date': [date], 
-                                            'Hours': [hours]
-                                            }
-                                        )
-                    save(new_record, historical_records)
-                    # This backup function asks them if they want to save first.        
-                    backup(historical_records)
-        else:
-            print('Your data has NOT been saved ')
-            time.sleep(1.5)
-    except UnboundLocalError:
-        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        print('Nice Try. You almost broke me. Enter in something valid next time\n\n ')
-        cont = input('Press "Enter" to continue: ')
+
+                if subject not in historical_records.Subject.unique():
+                    track = input(f'It looks like "{subject.upper()}" is new to our records. Would you like\n'
+                                    f'to start tracking it? [Y/n]: ').lower()
+                    if 'y' in track:
+                        print(f'\n\n{subject.upper()} has NOT been added to the record books.')
+                        time.sleep(1.5)
+                    else:
+                        new_record = pd.DataFrame(
+                                                {'Subject': [subject],
+                                                'Date': [date], 
+                                                'Hours': [hours]
+                                                }
+                                            )
+                        save(new_record,historical_records)
+                        #This is the back up save. Can be recovered if original data is corrupted.
+                        backup(historical_records)
+                else:
+                    print('----------------------------------------------------------------------')
+                    track = input(f'You are about to enter that you have studied [{subject.swapcase()}] for [{hours}] hours\n'
+                                    f'on [{date}]. Is this correct? [Y/n]: ').lower()
+                    print('----------------------------------------------------------------------')
+
+                    if 'n' in track:
+                        break
+                    else:
+                        new_record = pd.DataFrame(
+                                                {'Subject': [subject],
+                                                'Date': [date], 
+                                                'Hours': [hours]
+                                                }
+                                            )
+                        save(new_record, historical_records)
+                        # This backup function asks them if they want to save first.        
+                        backup(historical_records)
+        except UnboundLocalError and TypeError:
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('Nice Try. You almost broke me. Enter in something valid next time\n\n ')
+            cont = input('Press "Enter" to retry: ')
 
 ############################## TIME CALCULATOR ######################################
 # Allows you to insert the the time of day you started and stopped studying. Then calculates the time spent studying.
@@ -387,12 +402,12 @@ def time_calculator():
             # Using timedelta to create an actual time the computer can use to calucalate.
             end = dt.timedelta(hours = end_hour, minutes= end_minute)
 
-            if start or end > 24:
+            if (start_hour > 24) or (end_hour > 24):
                 print('\n...')
                 print('The time you have entered doesn\'t exist.')
                 cont = input('Press "Enter" to continue')
                 break
-            if start or end < 0:
+            if (start_hour < 0) or (end_hour < 0):
                 print('\n...')
                 print('The time you have entered doesn\'t exist.')
                 cont = input('Press "Enter" to continue')
@@ -427,15 +442,20 @@ def time_calculator_save_decisions(first_input, historical_records):
             clear_terminal()
             subject, date, hours, new_record = time_calculator()
             #! Add a way to automatically save data locally to a different file for backup
-            would_you_like_to_save = input('Would You like to enter this data? y/n: ')
-            if 'y' in would_you_like_to_save:
+            would_you_like_to_save = input('Would You like to enter this data? [Y/n]: ')
+            if 'n' in would_you_like_to_save:
+                print('Your data has NOT been saved ')
+                time.sleep(1.5)
+            else:
 
                 if subject not in historical_records.Subject.unique():
+                    clear_terminal()
                     track = input(f'It looks like "{subject.upper()}" is new to our records. Would you like\n'
                                     f'to start tracking it? [Y/n]: ').lower()
                     if 'n' in track:
                         print(f'\n\n{subject.upper()} has NOT been added to the record books.')
                         time.sleep(1.5)
+                        break
                     else:
                         new_record = pd.DataFrame(
                                                 {'Subject': [subject],
@@ -446,6 +466,7 @@ def time_calculator_save_decisions(first_input, historical_records):
                         save(new_record,historical_records)
                         #This is the back up save. Can be recovered if original data is corrupted.
                         backup(historical_records)
+                        break
 
                 else:
                     print('----------------------------------------------------------------------')
@@ -462,10 +483,7 @@ def time_calculator_save_decisions(first_input, historical_records):
                         save(new_record, historical_records)
                         # This backup function asks them if they want to save first          
                         backup(historical_records)
-            else:
-                print('Your data has NOT been saved ')
-                time.sleep(1.5)
-        except UnboundLocalError and TypeError:
+        except:
             print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
             print('Nice Try. You almost broke me. Enter in something valid next time\n\n ')
             cont = input('Press "Enter" to retry or "N" to go back to the main menu: ')
