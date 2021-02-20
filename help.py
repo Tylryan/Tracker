@@ -29,8 +29,8 @@ python    02/18/21   1.5
         cont = input('Press "Enter" to continue')
         print('----------------------------------------------------------------------')
         print( """
-(1) Time Calculator: If you know when, but not how many hours you studied
-(2) Stopwatch: A built in stopwatch to track time studied
+(1) Stopwatch: A built in stopwatch to track time studied
+(2) Time Calculator: If you know when, but not how many hours you studied
 (3) A list of all things tracked
 (4) The last 5 Entries
 (5) For Stats and Charts
@@ -41,57 +41,11 @@ Note: type "exit" to go back to the main screen.
         """)
         help = input('Type the number of the command you need help with. E.g. 2: ').lower().split()
         functions.clear_terminal()
-        if 'exit' in help:
-            print('Getting out of help. Have fun! ')
-            time.sleep(1.5)
-            functions.clear_terminal()
-            break
-        elif '1' in help:
+
+########################################## Stopwatch ##########################################################################
+        if '1' in help:
             print("""
-(1) Time Calculator
-
-Format: 
-
-X XX (Hour (SPACE) Minute)
-
-Purpose: 
-
-The Time Calculator allows you to insert the clock time (e.g. 2 14, or 16 30) 
-you started and stopped studying a subject and will return the difference in 
-terms of hours. For example, if you studied from 13 30 to 13 40 (i.e. 10 minutes),
-the Time Calculator will return 0.17 hours.
-
-It comes in handy when you know when you started and stopped studying, but you don't 
-want to calculate the difference yourself.
-
-
-Warning:
-
-The delimiter is the space between the numbers. So it is important that you do 
-not put commas or colons!
-
-Advice:
-
-1) If you know how many hours and minutes you studied, skip the Time 
-Calculator. All you need to do is enter the information at the very first prompt.
-
-2) If you don't want to manually keep track of time AND you have this application 
-downloaded on your main computer, then you can just use the built in Stopwatch to 
-track your time.
-
-Example: 
-
-Prompt: What would you like to do? 
-Input: python 02/08/21
-            
-            """)
-            cont = input('Press "Enter" to continue ')
-            if 'stop' in cont:
-                break
-            functions.clear_terminal()
-        elif '2' in help:
-            print("""
-(2) Stopwatch
+(1) Stopwatch
 
 Format: 
 
@@ -135,11 +89,64 @@ cautious. Manually back up data and try to rerun the program, if the same thing
 happens, then it would be advisable to stop using the program.
             
             """)
-            cont = input('Press "Enter" to continue ')
-            if 'stop' in cont:
+            cont = input('Press "Enter" to continue or type "exit" \n'
+            'to go back to the main menu ')
+            if 'exit' in cont:
                 break
             functions.clear_terminal()
 
+########################################## Time Calculator #####################################################################
+        elif 'exit' in help:
+            print('Getting out of help. Have fun! ')
+            time.sleep(1.5)
+            functions.clear_terminal()
+            break
+        elif '2' in help:
+            print("""
+(2) Time Calculator
+
+Format: 
+
+X XX (Hour (SPACE) Minute)
+
+Purpose: 
+
+The Time Calculator allows you to insert the clock time (e.g. 2 14, or 16 30) 
+you started and stopped studying a subject and will return the difference in 
+terms of hours. For example, if you studied from 13 30 to 13 40 (i.e. 10 minutes),
+the Time Calculator will return 0.17 hours.
+
+It comes in handy when you know when you started and stopped studying, but you don't 
+want to calculate the difference yourself.
+
+
+Warning:
+
+The delimiter is the space between the numbers. So it is important that you do 
+not put commas or colons!
+
+Advice:
+
+1) If you know how many hours and minutes you studied, skip the Time 
+Calculator. All you need to do is enter the information at the very first prompt.
+
+2) If you don't want to manually keep track of time AND you have this application 
+downloaded on your main computer, then you can just use the built in Stopwatch to 
+track your time.
+
+Example: 
+
+Prompt: What would you like to do? 
+Input: python 02/08/21
+            
+            """)
+            cont = input('Press "Enter" to continue or type "exit" \n'
+            'to go back to the main menu ')
+            if 'exit' in cont:
+                break
+            functions.clear_terminal()
+
+########################################## Subjects Tracked #####################################################################
         elif '3' in help:
             print("""
 (3) Tracked Subjects
@@ -151,11 +158,13 @@ It can also be used to see if you have any tasks being tracked that are misspell
 
             
             """)
-            cont = input('Press "Enter" to continue ')
-            if 'stop' in cont:
+            cont = input('Press "Enter" to continue or type "exit" \n'
+            'to go back to the main menu ')
+            if 'exit' in cont:
                 break
             functions.clear_terminal()
 
+########################################## Last 5 Entries #####################################################################
         elif '4' in help:
             print("""
 (4) Last 5 Entries
@@ -167,10 +176,13 @@ as another way to prevent duplicate entries.
 
             
             """)
-            cont = input('Press "Enter" to continue ')
-            if 'stop' in cont:
+            cont = input('Press "Enter" to continue or type "exit" \n'
+            'to go back to the main menu ')
+            if 'exit' in cont:
                 break
             functions.clear_terminal()
+
+########################################## Stats and Charts #####################################################################
         elif '5' in help:
             print("""
 (5) Stats and Charts
@@ -209,14 +221,15 @@ Example:
 
             
             """)
-            cont = input('Press "Enter" to continue ')
-            if 'stop' in cont:
+            cont = input('Press "Enter" to continue or type "exit" \n'
+            'to go back to the main menu ')
+            if 'exit' in cont:
                 break
             functions.clear_terminal()
-
+########################################## Backup Save #####################################################################
         elif '6' in help:
             print("""
-(6) Backup Your Files
+(6) Backup Save
 
 Format: 
 
@@ -231,11 +244,34 @@ Example:
 
             
             """)
-            cont = input('Press "Enter" to continue ')
-            if 'stop' in cont:
+            cont = input('Press "Enter" to continue or type "exit" \n'
+            'to go back to the main menu ')
+            if 'exit' in cont:
                 break
             functions.clear_terminal()
 
+        elif '' in help:
+            print("""
+(6) Remove Entry
+
+Format: 
+
+Purpose: 
+
+Warning:
+
+Advice:
+
+
+Example: 
+
+            
+            """)
+            cont = input('Press "Enter" to continue or type "exit" \n'
+            'to go back to the main menu ')
+            if 'exit' in cont:
+                break
+            functions.clear_terminal()
     
 
 

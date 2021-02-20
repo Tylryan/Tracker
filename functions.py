@@ -93,55 +93,6 @@ def first_data():
         historical_data.to_csv('records.csv', index = False)
         historical_data.to_csv('backup.csv', index = False)
 
-############################## TIME CALCULATOR ######################################
-# Allows you to insert the the time of day you started and stopped studying. Then calculates the time spent studying.
-def time_calculator():
-    
-    # Trying the below code.
-    try: 
-        #Clear the terminal to reduce clutter.
-        clear_terminal()
-
-        subject_date = input('Enter the subject and date you are calculating for: ').lower().split()
-        subject = subject_date[0]
-        date = subject_date[1]
-
-        print('Format = Hour Minute: NO COMMA OR ANYTHING')
-
-        # Getting start time information from the user.
-        start_time = input('Start Hour/Minute: ').split()
-        # Separating the input by hour and minute
-        start_hour = int(start_time[0])
-        start_minute = int(start_time[1])
-        # Using timedelta to create an actual time the computer can use to calucalate.
-        start = dt.timedelta(hours = start_hour, minutes= start_minute)
-
-        print('Format = Hour Minute: NO COMMA OR ANYTHING')
-        # Getting the end time from the user.
-        end_time = input('End Hour/Minute: ').split()
-        # Separating the input by hour and minute
-        end_hour = int(end_time[0])
-        end_minute = int(end_time[1])
-        # Using timedelta to create an actual time the computer can use to calucalate.
-        end = dt.timedelta(hours = end_hour, minutes= end_minute)
-        # Using time delta to calculate the difference between end time and start time.
-        hours = round((end - start).total_seconds() / 3600,2)
-        new_record = [subject,date,hours]
-        # Telling the user the amount of time they have studied.
-        print(f'\n\nYou have studied for {hours} hours.')
-        # Pausing the screen to let the user digest the information. Allows them to continue at their own pace.
-        cont = input('Press "Enter" to continue: ')
-        print('----------------------------------------------------------------------\n')
-        # Clearing the terminal to reduce clutter.
-    # If the input doesn't work by user error or the code's, then it won't break the code, it will just restart to the top.
-        return subject, date, hours, new_record
-    except:
-        print("\n################## Error #####################\n"
-                "You probably didn't enter the right time.\n")
-        # Stoping the code to allow the user to digest the error message. Let's the user continue at their own pace.
-        cont = input('Press "Enter" to continue: ')
-        clear_terminal()
-
 ############################## DATA REPORTS (NO GRAPHS) ######################################
 
 # This will show the user the total hours spent studying each subject from the time they started to use the program.
@@ -314,35 +265,44 @@ def backup(historical_records):
 ############################### Stopwatch Saving ###################################################
     # Here we are going to start tracking.
 def tracker(historical_records):
-    to_track = input('Insert the subject you would like to track and the current day ').lower().split()
-    subject = to_track[0]
-    date = to_track[1]
+    while True:
+        clear_terminal()
+        try:
+            to_track = input('Insert the subject you would like to track and the current day ').lower().split()
+            subject = to_track[0]
+            date = to_track[1]
 
-    # Clear the terminal here
-    print('This stopwatch returns values in terms of hours rounded to the hundredths\n\n'
-    'For example, 10 minutes will return 0.17 hours')
-    print('\n\n----------------------------------------------------------------------')
-    start_input = input('Time will be started after you press "Enter". ')
-    stopwatch_start = dt.datetime.now()
-    print(f'\nRecording Time: {stopwatch_start}')
-    print('----------------------------------------------------------------------')
+            # Clear the terminal here
+            print('This stopwatch returns values in terms of hours rounded to the hundredths\n\n'
+            'For example, 10 minutes will return 0.17 hours')
+            print('\n\n----------------------------------------------------------------------')
+            start_input = input('Time will be started after you press "Enter". ')
+            stopwatch_start = dt.datetime.now()
+            print(f'\nRecording Time: {stopwatch_start}')
+            print('----------------------------------------------------------------------')
 
-    end_input = input('\nTime will be stopped after you press "Enter"')
-    stopwatch_end = dt.datetime.now()
+            end_input = input('\nTime will be stopped after you press "Enter"')
+            stopwatch_end = dt.datetime.now()
 
-    studied = round((stopwatch_end - stopwatch_start).total_seconds() / 3600,2)
-    print(f'\nRecording Ended: {stopwatch_end}\n')
-    time.sleep(1.0)
-    # Clear Terminal
-    print('################################ && ##################################\n')
-    print(f'You have studied for {studied} hours')
-    print('\n################################ && ##################################\n\n\n')
-    cont = input('Press Enter to continue ')
+            studied = round((stopwatch_end - stopwatch_start).total_seconds() / 3600,2)
+            print(f'\nRecording Ended: {stopwatch_end}\n')
+            time.sleep(1.0)
+            # Clear Terminal
+            print('################################ && ##################################\n')
+            print(f'You have studied for {studied} hours')
+            print('\n################################ && ##################################\n\n\n')
+            cont = input('Press Enter to continue ')
 
-    hours = studied
-    new_record = [subject,date,hours]
-    return subject, date, hours, new_record
-
+            hours = studied
+            new_record = [subject,date,hours]
+            return subject, date, hours, new_record
+        except IndexError:
+                print('\n...')
+                time.sleep(1.5)
+                print('Looks like you didn\'t enter something in correctly')
+                cont = input('Press "Enter" to retry or "N" to go back to the main menu: ').lower()
+                if 'n' in cont:
+                    break
 def tracker_save_decisions(first_input, historical_records):
     clear_terminal()
     try:
@@ -394,53 +354,123 @@ def tracker_save_decisions(first_input, historical_records):
         print('Nice Try. You almost broke me. Enter in something valid next time\n\n ')
         cont = input('Press "Enter" to continue: ')
 
+############################## TIME CALCULATOR ######################################
+# Allows you to insert the the time of day you started and stopped studying. Then calculates the time spent studying.
+def time_calculator():
+    
+    # Trying the below code.
+    while True:
+        try: 
+            #Clear the terminal to reduce clutter.
+            clear_terminal()
+
+            subject_date = input('Enter the subject and date you are calculating for: ').lower().split()
+            subject = subject_date[0]
+            date = subject_date[1]
+
+            print('Format = Hour Minute: NO COMMA OR ANYTHING')
+
+            # Getting start time information from the user.
+            start_time = input('Start Hour/Minute: ').split()
+            # Separating the input by hour and minute
+            start_hour = int(start_time[0])
+            start_minute = int(start_time[1])
+            # Using timedelta to create an actual time the computer can use to calucalate.
+            start = dt.timedelta(hours = start_hour, minutes= start_minute)
+
+            print('Format = Hour Minute: NO COMMA OR ANYTHING')
+            # Getting the end time from the user.
+            end_time = input('End Hour/Minute: ').split()
+            # Separating the input by hour and minute
+            end_hour = int(end_time[0])
+            end_minute = int(end_time[1])
+            # Using timedelta to create an actual time the computer can use to calucalate.
+            end = dt.timedelta(hours = end_hour, minutes= end_minute)
+
+            if start or end > 24:
+                print('\n...')
+                print('The time you have entered doesn\'t exist.')
+                cont = input('Press "Enter" to continue')
+                break
+            if start or end < 0:
+                print('\n...')
+                print('The time you have entered doesn\'t exist.')
+                cont = input('Press "Enter" to continue')
+                break
+            # Using time delta to calculate the difference between end time and start time.
+            hours = round((end - start).total_seconds() / 3600,2)
+
+            if hours < 0:
+                print('\n...')
+                time.sleep(1.5)
+                print(f'\nYou have entered that you have studied {hours}. That would mean\n\n'
+                'you\'ve haven\'t studied at all. In fact you\'ve been doing the opposite ')
+                print('Let\'s go ahead and retry that ')
+                break
+            new_record = [subject,date,hours]
+            # Telling the user the amount of time they have studied.
+            print(f'\n\nYou have studied for {hours} hours.')
+            # Pausing the screen to let the user digest the information. Allows them to continue at their own pace.
+            cont = input('Press "Enter" to continue: ')
+            print('----------------------------------------------------------------------\n')
+            # Clearing the terminal to reduce clutter.
+            # If the input doesn't work by user error or the code's, then it won't break the code, it will just restart to the top.
+            return subject, date, hours, new_record
+        except TypeError and IndexError:
+            print('\n...')
+            time.sleep(1.5)
+    
 ####################################### Time Calculator Save ##############################################################
 def time_calculator_save_decisions(first_input, historical_records):
-    try:
-        clear_terminal()
-        subject, date, hours, new_record = time_calculator()
-        #! Add a way to automatically save data locally to a different file for backup
-        would_you_like_to_save = input('Would You like to enter this data? y/n: ')
-        if 'y' in would_you_like_to_save:
+    while True:
+        try:
+            clear_terminal()
+            subject, date, hours, new_record = time_calculator()
+            #! Add a way to automatically save data locally to a different file for backup
+            would_you_like_to_save = input('Would You like to enter this data? y/n: ')
+            if 'y' in would_you_like_to_save:
 
-            if subject not in historical_records.Subject.unique():
-                track = input(f'It looks like "{subject.upper()}" is new to our records. Would you like\n'
-                                f'to start tracking it? (y/n): ').lower()
-                if track == 'y':
-                    new_record = pd.DataFrame(
-                                            {'Subject': [subject],
-                                            'Date': [date], 
-                                            'Hours': [hours]
-                                            }
-                                        )
-                    save(new_record,historical_records)
-                    #This is the back up save. Can be recovered if original data is corrupted.
-                    backup(historical_records)
+                if subject not in historical_records.Subject.unique():
+                    track = input(f'It looks like "{subject.upper()}" is new to our records. Would you like\n'
+                                    f'to start tracking it? [Y/n]: ').lower()
+                    if 'n' in track:
+                        print(f'\n\n{subject.upper()} has NOT been added to the record books.')
+                        time.sleep(1.5)
+                    else:
+                        new_record = pd.DataFrame(
+                                                {'Subject': [subject],
+                                                'Date': [date], 
+                                                'Hours': [hours]
+                                                }
+                                            )
+                        save(new_record,historical_records)
+                        #This is the back up save. Can be recovered if original data is corrupted.
+                        backup(historical_records)
+
                 else:
-                    print(f'\n\n{subject.upper()} has NOT been added to the record books.')
-                    time.sleep(1.5)
+                    print('----------------------------------------------------------------------')
+                    track = input(f'You are about to enter that you have studied [{subject.swapcase()}] for [{hours}] hours\n'
+                                    f'on [{date}]. Is this correct? (y/n): ').lower()
+                    print('----------------------------------------------------------------------')
+                    if track == 'y':
+                        new_record = pd.DataFrame(
+                                                {'Subject': [subject],
+                                                'Date': [date], 
+                                                'Hours': [hours]
+                                                }
+                                            )
+                        save(new_record, historical_records)
+                        # This backup function asks them if they want to save first          
+                        backup(historical_records)
             else:
-                print('----------------------------------------------------------------------')
-                track = input(f'You are about to enter that you have studied [{subject.swapcase()}] for [{hours}] hours\n'
-                                f'on [{date}]. Is this correct? (y/n): ').lower()
-                print('----------------------------------------------------------------------')
-                if track == 'y':
-                    new_record = pd.DataFrame(
-                                            {'Subject': [subject],
-                                            'Date': [date], 
-                                            'Hours': [hours]
-                                            }
-                                        )
-                    save(new_record, historical_records)
-                    # This backup function asks them if they want to save first          
-                    backup(historical_records)
-        else:
-            print('Your data has NOT been saved ')
-            time.sleep(1.5)
-    except UnboundLocalError:
-        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        print('Nice Try. You almost broke me. Enter in something valid next time\n\n ')
-        cont = input('Press "Enter" to continue: ')
+                print('Your data has NOT been saved ')
+                time.sleep(1.5)
+        except UnboundLocalError and TypeError:
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('Nice Try. You almost broke me. Enter in something valid next time\n\n ')
+            cont = input('Press "Enter" to retry or "N" to go back to the main menu: ')
+            if 'n' in cont:
+                break
 
 ############################################ REMOVING AN ENTRY ###################################################
 

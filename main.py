@@ -99,7 +99,6 @@ Or Type in a number below.
         elif '2' == first_input[0]:
             # Create a time calculator e.g. 15:36 - 12:36 = 3 Hours
             functions.time_calculator_save_decisions(first_input, historical_records)
-
         elif '3' == first_input[0]:
             print(f'Subjects Tracked: {historical_records.Subject.unique()}')
             cont = input('Press "Enter" to continue: ')
