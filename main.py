@@ -13,28 +13,28 @@ import time
 functions.file_checking()
 # Making sure they have data in their files. Won't work without it.
 functions.first_data()
-########################################## READING HISTORICAL DATA ##############################################################
-
-historical_records = pd.read_csv('records.csv', parse_dates = True, infer_datetime_format = True)
-historical_records = historical_records.sort_values('Date', ascending = True)
-historical_records['Date'] = pd.to_datetime(historical_records['Date']).dt.date
 ############################################### THE GAME!!! #####################################################################
 
 while True:
+    ########################################## READING HISTORICAL DATA ##############################################################
+
+    historical_records = pd.read_csv('records.csv', parse_dates = True, infer_datetime_format = True)
+    historical_records = historical_records.sort_values('Date', ascending = True)
+    historical_records['Date'] = pd.to_datetime(historical_records['Date']).dt.date
     try:
         functions.clear_terminal()
         print("""
 Enter in a record formatted like: Python 01/01/21 1.5 \n
 Or Type in a number below.
 
-(1) Time Calculator
-(2) Stopwatch
+(1) Stopwatch
+(2) Time Calculator
 (3) Tracked Subjects
 (4) Last 5 Entries
 (5) Stats and Charts
 (6) Backup Save
-(7) Help
-(8) Remove Entry
+(7) Remove Entry
+(8) Help
 
 **********************************************************************
 (9) To exit the program
@@ -53,11 +53,53 @@ Or Type in a number below.
             time.sleep(1.5)
             functions.clear_terminal()
             break
+        ########################################## DEFAULT INPUT #################################################
+        elif len(first_input) == 3:
+            # Here we are going to start saving to the database
+            subject = first_input[0]
+            date = first_input[1]
+            hours = first_input[2]
+            #! Add a way to automatically save data locally to a different file for backup
+            if subject not in historical_records.Subject.unique():
+                track = input(f'It looks like "{subject.upper()}" is new to our records. Would you like\n'
+                            f'to start tracking it? [Y/n]: ').lower()
+                if track == 'n':
+                    print(f'\n\n{subject.upper()} has NOT been added to the record books.')
+                    time.sleep(1.5)
+                    break
+                else:
+                    new_record = pd.DataFrame(
+                        
+                        {'Subject': [subject], 
+                        'Date': [date], 
+                        'Hours': [hours]
+                        }
+                    )
+                    print('----------------------------------------------------------------------')
+                    functions.save(new_record,historical_records)
+                    #This is the back up save. Can be recovered if original data is corrupted.
+                    functions.backup(historical_records)
+
+            else:
+                print('----------------------------------------------------------------------')
+                track = input(f'You are about to enter that you have studied [{subject.swapcase()}] for [{hours}] hours\n'
+                            f'on [{date}]. Is this correct? [Y/n]: ').lower()
+                print('----------------------------------------------------------------------')
+                if track == 'n':
+                    pass
+                else:
+                    new_record = pd.DataFrame({'Subject': [subject], 'Date': [date], 'Hours': [hours]})
+                    functions.save(new_record, historical_records)
+                    # This print statement helps verify that nothing went wrong in the code.             
+                    functions.backup(historical_records)
+
+        #################################### HERE ARE ALL THE OPTIONS ##############################################
         elif '1' == first_input[0]:
+            functions.tracker_save_decisions(first_input, historical_records)
+        elif '2' == first_input[0]:
             # Create a time calculator e.g. 15:36 - 12:36 = 3 Hours
             functions.time_calculator_save_decisions(first_input, historical_records)
-        elif '2' == first_input[0]:
-            functions.tracker_save_decisions(first_input, historical_records)
+
         elif '3' == first_input[0]:
             print(f'Subjects Tracked: {historical_records.Subject.unique()}')
             cont = input('Press "Enter" to continue: ')
@@ -127,51 +169,14 @@ Or Type in a number below.
                     print('Please try again...')
                     cont = input('Press "Enter" to continue: ')
 
-
-        elif len(first_input) == 3:
-            # Here we are going to start saving to the database
-            subject = first_input[0]
-            date = first_input[1]
-            hours = first_input[2]
-            #! Add a way to automatically save data locally to a different file for backup
-            if subject not in historical_records.Subject.unique():
-                track = input(f'It looks like "{subject.upper()}" is new to our records. Would you like\n'
-                            f'to start tracking it? (y/n): ').lower()
-                if track == 'y':
-                    new_record = pd.DataFrame(
-                        
-                        {'Subject': [subject], 
-                        'Date': [date], 
-                        'Hours': [hours]
-                        }
-                    )
-                    functions.save(new_record,historical_records)
-                    #This is the back up save. Can be recovered if original data is corrupted.
-                    functions.backup(historical_records)
-                    break
-                else:
-                    print(f'\n\n{subject.upper()} has NOT been added to the record books.')
-                    time.sleep(1.5)
-                    break
-            else:
-                print('----------------------------------------------------------------------')
-                track = input(f'You are about to enter that you have studied [{subject.swapcase()}] for [{hours}] hours\n'
-                            f'on [{date}]. Is this correct? (y/n): ').lower()
-                print('----------------------------------------------------------------------')
-                if track == 'y':
-                    new_record = pd.DataFrame({'Subject': [subject], 'Date': [date], 'Hours': [hours]})
-                    functions.save(new_record, historical_records)
-                    # This print statement helps verify that nothing went wrong in the code.             
-                    functions.backup(historical_records)
-
         elif '6' == first_input[0]:
             functions.clear_terminal()
             functions.backup(historical_records)
         elif '7' == first_input[0]:
-            help.help()
-        elif '8' == first_input[0]:
             functions.remove(historical_records)
 
+        elif '8' == first_input[0]:
+            help.help()
         else:
             print('Please Try again...')
             cont = input('Press "Enter" to continue: ')

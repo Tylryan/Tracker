@@ -295,20 +295,21 @@ def backup(historical_records):
     historical_records['Date'] = pd.to_datetime(historical_records['Date']).dt.date
     print(historical_records.tail(10))
     # Asking the user if they would like to back up their files
-    backup = input('\n\nWould You like to back this data up? y/n ')
+    backup = input('\n\nWould You like to back this data up? [Y/n] ')
     # A conditional statement depending on the user's input
-    if 'y' in backup.lower():
+    if 'n' in backup.lower():
+        # If the user doesn't want to backup their data, then this elif statement will be activated
+        # Confirming to the user that their data has not been backed up
+        print('\n\nBackup database has NOT been updated.')
+        # This give the user time to digest the the message above
+        time.sleep(1.5)
+    else:
         # If the user wants to backup their data, this is the backup save that saves to a file called "backup.csv"
         historical_records['Date'] = pd.to_datetime(historical_records['Date']).dt.date
         historical_records.to_csv('backup.csv', sep = ',', index = False)
         print('Your backup has been saved. ')
         time.sleep(1.5)
-    # If the user doesn't want to backup their data, then this elif statement will be activated
-    elif 'n' in backup.lower():
-        # Confirming to the user that their data has not been backed up
-        print('\n\nBackup database has NOT been updated.')
-        # This give the user time to digest the the message above
-        time.sleep(1.5)
+
 
 ############################### Stopwatch Saving ###################################################
     # Here we are going to start tracking.
@@ -348,7 +349,7 @@ def tracker_save_decisions(first_input, historical_records):
 
         if len(first_input) == 2: # NOTE THIS ALLOWS YOU TO AUTOMATICALL GO TO TIME TRACKING WITHOUT PRESSING 2.
             subject, date, hours, new_record = tracker(historical_records)
-        elif first_input[0] == '2':
+        elif first_input[0] == '1':
             subject, date, hours, new_record = tracker(historical_records)
         #! Add a way to automatically save data locally to a different file for backup
         would_you_like_to_save = input('Would You like to enter this data? y/n: ')
@@ -383,7 +384,7 @@ def tracker_save_decisions(first_input, historical_records):
                                             }
                                         )
                     save(new_record, historical_records)
-                    # This print statement helps verify that nothing went wrong in the code.             
+                    # This backup function asks them if they want to save first.        
                     backup(historical_records)
         else:
             print('Your data has NOT been saved ')
@@ -397,8 +398,7 @@ def tracker_save_decisions(first_input, historical_records):
 def time_calculator_save_decisions(first_input, historical_records):
     try:
         clear_terminal()
-        if first_input[0] == '1':
-            subject, date, hours, new_record = time_calculator()
+        subject, date, hours, new_record = time_calculator()
         #! Add a way to automatically save data locally to a different file for backup
         would_you_like_to_save = input('Would You like to enter this data? y/n: ')
         if 'y' in would_you_like_to_save:
@@ -432,7 +432,7 @@ def time_calculator_save_decisions(first_input, historical_records):
                                             }
                                         )
                     save(new_record, historical_records)
-                    # This print statement helps verify that nothing went wrong in the code.             
+                    # This backup function asks them if they want to save first          
                     backup(historical_records)
         else:
             print('Your data has NOT been saved ')
