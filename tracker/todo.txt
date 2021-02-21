@@ -1,0 +1,13 @@
+Things I need to work on for the Tracker project.
+
+
+1) Somehow I need to make the computer work with no data IN WINDOWS
+	A) You would have to figure out how to use powershell from python.
+	B) Then you would have to figure out the commands that are equivalent to Linux.
+2) Put all the individual graphs into one dashboard. 
+
+3) Add the option to remove an entry
+
+4) Fix the flow os the y/n questions. Make them to where any key gets you yes, but "n" gets you no.
+	I like pressing enter.
+
