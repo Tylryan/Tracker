@@ -99,7 +99,7 @@ def first_data():
 def hours_by_subject(historical_records):
 
     # Grouping the data by subject and summing the hours. Then turning that into a dataframe.
-    total_hours = pd.DataFrame(historical_records.groupby('Subject').Hours.sum())
+    total_hours = pd.DataFrame(historical_records.groupby('Subject').Hours.sum().sort_values(ascending = False))
     # Renaming the column to "Hours Studied"
     total_hours.columns = ['Hours Studied']
     # Showing the user how many hours they studied each subject
@@ -121,7 +121,7 @@ def past_seven_days(historical_records):
     # Applying the mask to the indexed dataframe to return all data from the last seven days.
     seven_days_of_data = indexed[indexed.index >= seven_days_ago]
     # Grouping the data from the last seven days by subject and summing the hours.
-    grouped_seven = pd.DataFrame(seven_days_of_data.groupby('Subject').Hours.sum())
+    grouped_seven = pd.DataFrame(seven_days_of_data.groupby('Subject').Hours.sum().sort_values(ascending = False))
     # Renaming the new dataframe column to "Hours Studied"
     grouped_seven.columns = ['Hours Studied']
     # Telling the user the results.
@@ -135,7 +135,7 @@ def past_seven_days(historical_records):
 # Finding the average amount of hours studied per day by subject.
 def hours_studied_per_day(historical_records):
     # Grouping the original dataframe by subject and averaging the hours spent on each subject. Then turning it into it's own dataframe.
-    hr_grouped_by_subject = pd.DataFrame(historical_records.groupby('Subject').Hours.mean().round(2))
+    hr_grouped_by_subject = pd.DataFrame(historical_records.groupby('Subject').Hours.mean().round(2).sort_values(ascending = False))
     # Renaming the dataframe's column to "Hours Studied per Day"
     hr_grouped_by_subject.columns = ['Hours Studied per Day']
     # Telling the user the results
@@ -197,7 +197,9 @@ def past_seven_days_graph(historical_records):
 # Creating a line graph that shows the user the seven day rolling/moving average of hours spent studying by subject
 # Getting all the subjects.
 def weekly_rolling_avg_graph(historical_records):
-    # Creating a live list of subject studied.
+
+    #Creating a live list of subject studied.
+
     subjects = [unique for unique in historical_records['Subject'].unique()]
     # Creating a mask that will return only the data that pertains to python
     mask = historical_records['Subject'] == 'python'
@@ -223,6 +225,7 @@ def weekly_rolling_avg_graph(historical_records):
     subjects_in_columns = combined_df.drop(columns = ['Hours'])
     # Finding the seven day rolling/moving average of hours spent studying by subject
     rolling_7 = subjects_in_columns.rolling(window = 7).mean()
+    print(rolling_7)
     # Creating a graph that will display the results
     rolling_7.plot()
     # Displaying the graph to the user
