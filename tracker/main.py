@@ -40,7 +40,7 @@ Or Type in a number below.
         historical_records = pd.read_csv('records.csv', parse_dates = True, infer_datetime_format = True)
         historical_records = historical_records.sort_values('Date', ascending = True)
         historical_records['Date'] = pd.to_datetime(historical_records['Date']).dt.date
-        last_items_entered = historical_records.groupby('Subject').first() #! This might work now, but it probably won't work in the future
+        last_items_entered = historical_records.groupby('Subject').last().sort_values(by = 'Date') #! This might work now, but it probably won't work in the future
         print(f'These are the last records entered BY SUBJECT\n\n'
                 f'{last_items_entered}\n\n')
         first_input = input('What would you like to do? ').lower().split()
@@ -140,16 +140,9 @@ Or Type in a number below.
 
                 elif '2' in data_type[0]:
 
-                    #These can work will limited data
-                    #! Total Hours Studied by Subject
-                    functions.hours_by_subject(historical_records)
-
-                    # These must have at least 7 days logged
                     try:
-                        #! Hours studied by subject over the past week.
-                        functions.past_seven_days(historical_records)
-                        #! Average hours studied per day by subject.
-                        functions.hours_studied_per_day(historical_records)
+                        #! All data
+                        functions.all_data(historical_records)
                     except IndexError:
                         pass
 

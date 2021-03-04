@@ -1,7 +1,12 @@
 #! /bin/python
 
+import panel as pn
+pn.extension('plotly')
+import plotly.express as px
+import panel.widgets as pnw
 import pandas as pd
 import csv
+import hvplot.pandas as hvplot
 import matplotlib.pyplot as plt
 import datetime as dt
 import seaborn as sns
@@ -15,7 +20,7 @@ import os
 #! I would also like to see a desktop version. Perhaps using Tkinter.
 
 
-# historical_records = pd.read_csv('record.csv', parse_dates=True, infer_datetime_format=True)
+# historical_records = pd.read_csv('records.csv', parse_dates=True, infer_datetime_format=True)
 # historical_records = historical_records.sort_values('Date', ascending = True)
 ############################## CLEARING THE TERMINAL ######################################
 # A useful function that clears the terminal to avoid clutter
@@ -95,60 +100,115 @@ def first_data():
 
 ############################## DATA REPORTS (NO GRAPHS) ######################################
 
-# This will show the user the total hours spent studying each subject from the time they started to use the program.
+    # This will show the user the total hours spent studying each subject from the time they started to use the program.
 def hours_by_subject(historical_records):
 
     # Grouping the data by subject and summing the hours. Then turning that into a dataframe.
-    total_hours = pd.DataFrame(historical_records.groupby('Subject').Hours.sum().sort_values(ascending = False))
+    total_hours = pd.DataFrame(historical_records.groupby('Subject').Hours.sum())
     # Renaming the column to "Hours Studied"
-    total_hours.columns = ['Hours Studied']
+    total_hours.columns = ['Total']
     # Showing the user how many hours they studied each subject
-    print(f'Total Hours Studied by Subject: \n\n'
-        f'{total_hours}')
     # Pausing the screen to let the user digest the information. Allows them to continue at their own pace.
-    enter = input('Press "Enter" to continue: ')
+    return total_hours
 
 
 
 # This will show the user the total amount of time spent studying for the past seven days (Weekly)
-def past_seven_days(historical_records):
-    # Setting the date as the index
-    indexed = historical_records.set_index('Date')
+def last_seven_days():
+    historical_records = pd.read_csv('records.csv', parse_dates = True, index_col='Date')
+    historical_records = historical_records.sort_values('Date', ascending = True)
+    subjects = historical_records.Subject.unique()
+
+    df = pd.DataFrame()
+
+    # Creating a base
+    mask = historical_records.Subject == 'python'
+    python_records = historical_records[mask]['Hours']
+    df['python'] = python_records
+
+    mask = historical_records.Subject == 'bash_scripting'
+    bash_records = historical_records[mask]['Hours']
+    df['bash_scripting'] = bash_records
+
+
+
+    for i in subjects[1:]:
+        mask = historical_records.Subject == i
+        subject_records = pd.DataFrame(historical_records[mask]['Hours'])
+        subject_records.columns = [i]
+        df[i] = subject_records
+
+    df = df.fillna(0)
+
     # Essentially reducing duplicate days. This will be used as a dictionary of sorts.
-    unique_days = indexed.index.unique()
+    unique_days = df.index.unique()
     # Creating a mask that takes the dates from the "Dictionary" above and chooses the last seven entries. I.e. The last seven days.
     seven_days_ago = unique_days[-7]
-    # Applying the mask to the indexed dataframe to return all data from the last seven days.
-    seven_days_of_data = indexed[indexed.index >= seven_days_ago]
+    # # Applying the mask to the indexed dataframe to return all data from the last seven days.
+    seven_days_of_data = df[seven_days_ago:]
+
     # Grouping the data from the last seven days by subject and summing the hours.
-    grouped_seven = pd.DataFrame(seven_days_of_data.groupby('Subject').Hours.sum().sort_values(ascending = False))
+    grouped_seven = pd.DataFrame(seven_days_of_data.sum())
     # Renaming the new dataframe column to "Hours Studied"
-    grouped_seven.columns = ['Hours Studied']
+    grouped_seven.columns = ['Last Seven Days']
     # Telling the user the results.
-    print(f'----------------------------------------------------------------------'
-        f'\n\nTotal Hours for the Last Seven Days.\n\n'
-        f'{grouped_seven}\n\n'
-        f'----------------------------------------------------------------------')
     # Pausing the screen to let the user digest the information. Allows them to continue at their own pace.
-    enter = input('Press "Enter" to continue: ')
+    return grouped_seven
 
 # Finding the average amount of hours studied per day by subject.
-def hours_studied_per_day(historical_records):
+def hours_studied_per_day():
+    historical_records = pd.read_csv('records.csv', parse_dates = True, index_col='Date')
+    historical_records = historical_records.sort_values('Date', ascending = True)
+    subjects = historical_records.Subject.unique()
+
+    df = pd.DataFrame()
+
+    # Creating a base
+    mask = historical_records.Subject == 'python'
+    python_records = historical_records[mask]['Hours']
+    df['python'] = python_records
+
+    mask = historical_records.Subject == 'bash_scripting'
+    bash_records = historical_records[mask]['Hours']
+    df['bash_scripting'] = bash_records
+
+
+
+    for i in subjects[1:]:
+        mask = historical_records.Subject == i
+        subject_records = pd.DataFrame(historical_records[mask]['Hours'])
+        subject_records.columns = [i]
+        df[i] = subject_records
+
+    df = df.fillna(0)
+
     # Grouping the original dataframe by subject and averaging the hours spent on each subject. Then turning it into it's own dataframe.
-    hr_grouped_by_subject = pd.DataFrame(historical_records.groupby('Subject').Hours.mean().round(2).sort_values(ascending = False))
+    hr_grouped_by_subject = pd.DataFrame(df[-7:].mean().round(2))
     # Renaming the dataframe's column to "Hours Studied per Day"
-    hr_grouped_by_subject.columns = ['Hours Studied per Day']
+    hr_grouped_by_subject.columns = ['Daily Avg']
     # Telling the user the results
-    print(hr_grouped_by_subject)
     # Pausing the screen to let the user digest the information. Allows them to continue at their own pace.
-    enter = input('Press "Enter" to continue: ')
+    return hr_grouped_by_subject
+
+
+def all_data(historical_records):
+    all_data = pd.concat(
+
+        [hours_studied_per_day(),
+        last_seven_days(),
+        hours_by_subject(historical_records)], 
+            axis = 'columns', 
+            join = 'outer'
+    )
+    print(all_data)
+    input('Press "Enter" to continue. ')
 
 ############################## GRAPHS ######################################
 def pie_hours_by_subject(historical_records):
     # grouping the original dataframe by subject and summing the hours.
     hours_by_subject = historical_records.groupby('Subject').Hours.sum()
     # Creting a pie chart that displays the results
-    plot = hours_by_subject.plot(legend = True, kind = 'pie')
+    pie_plot = hours_by_subject.plot(kind = 'pie', figsize = (30,15))
     # Naming the x label of the chart to subject
     x_label = plt.xlabel('Subject')
     # Naming the y label of the chart to hours
@@ -160,7 +220,7 @@ def pie_hours_by_subject(historical_records):
     # Making the graph layout to be as compact as possible
     plt.tight_layout()
     # Displaying the graph to the user
-    plt.show()
+    return pie_plot
 
 
 # Creating a bar chart that displays total hours studied by subject for the past seven days or week.
@@ -180,56 +240,53 @@ def past_seven_days_graph(historical_records):
     # Renaming the column of the dataframe to "Hours"
     grouped_seven.columns = ['Hours']
     # Creating a bar chart to display the results
-    grouped_seven.plot(
+    seven_plot = grouped_seven.plot(
                     # Setting the chart to a bar chart
                     kind = 'bar', 
                     # Creating a legend
                     legend = True, 
                     # Setting the size of the chart
-                    figsize = (20,10))
+                    figsize = (30,15))
     # Giving the chart a title
     title = plt.title('Total Hours Logged By Subject For The Last Week')
     # Naming the y label/axis
     ylabel = plt.ylabel('Hours Logged')
     # Displaying the chart to the user
-    plt.show()
+    return seven_plot
 
 # Creating a line graph that shows the user the seven day rolling/moving average of hours spent studying by subject
 # Getting all the subjects.
 def weekly_rolling_avg_graph(historical_records):
 
-    #Creating a live list of subject studied.
+    historical_records = pd.read_csv('records.csv', parse_dates = True, index_col='Date')
+    historical_records = historical_records.sort_values('Date', ascending = True)
+    subjects = historical_records.Subject.unique()
 
-    subjects = [unique for unique in historical_records['Subject'].unique()]
-    # Creating a mask that will return only the data that pertains to python
-    mask = historical_records['Subject'] == 'python'
-    # Creating an initial dataframe that will be used as the base to conatenate all other dataframes
-    initial_df = pd.DataFrame(historical_records[mask].groupby('Date').sum())
+    df = pd.DataFrame()
 
-    # Adding the other's to the dataframe.
-    for i in subjects:
-        print(i)
-        # Creating a filter
-        mask = historical_records['Subject'] == i
-        # Applying filter to historical records
-        temp_df = historical_records[mask].groupby('Date').sum()
-        # Turning the data into a dataframe.
-        new_df= pd.DataFrame(temp_df)
-        # Creating Column names for the new columns.
-        new_df.columns = [f'{i.title()} Hours']        
-        # Combining all the new dataframes to the existing one.
-        initial_df = pd.concat([initial_df,new_df], axis = 'columns', join = 'outer')
-    # Replacing the NaNs with 0
-    combined_df = initial_df.fillna(0)
-    # Dropping the extra column from the initial dataframe
-    subjects_in_columns = combined_df.drop(columns = ['Hours'])
-    # Finding the seven day rolling/moving average of hours spent studying by subject
-    rolling_7 = subjects_in_columns.rolling(window = 7).mean()
-    print(rolling_7)
-    # Creating a graph that will display the results
-    rolling_7.plot()
-    # Displaying the graph to the user
+    # Creating a base
+    mask = historical_records.Subject == 'python'
+    python_records = historical_records[mask]['Hours']
+    df['python'] = python_records
+
+    mask = historical_records.Subject == 'bash_scripting'
+    bash_records = historical_records[mask]['Hours']
+    df['bash_scripting'] = bash_records
+
+
+
+    for i in subjects[1:]:
+        mask = historical_records.Subject == i
+        subject_records = pd.DataFrame(historical_records[mask]['Hours'])
+        subject_records.columns = [i]
+        df[i] = subject_records
+
+    df = df.fillna(0)
+
+    df.plot(figsize = (30,15))
     plt.show()
+
+
 
     
     ################################ SAVING ########################################
@@ -263,6 +320,7 @@ def backup(historical_records):
             # If the user wants to backup their data, this is the backup save that saves to a file called "backup.csv"
             historical_records['Date'] = pd.to_datetime(historical_records['Date']).dt.date
             historical_records.to_csv('backup.csv', sep = ',', index = False)
+            historical_records.to_csv('~/Documents/tracker_backup/backup_data.csv', sep = ',', index = False)
             print('Your backup has been saved. ')
             time.sleep(1.5)
         except TypeError and ValueError:
