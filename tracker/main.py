@@ -1,19 +1,20 @@
 #! /bin/python
-
-import pandas as pd
-import csv
-from datetime import time, date, datetime
 import functions
 import help
+import pandas as pd
+from datetime import time, date, datetime
 import time
-
+import plotext 
+import matplotlib.pyplot as plt
 ###################################### CHECKING TO MAKE SURE THEY HAVE FILES AND STUFF IN THEM ##################################
 
 # Checking to make sure they have the correct files in this directory
 functions.file_checking()
 # Making sure they have data in their files. Won't work without it.
 functions.first_data()
-############################################### THE GAME!!! #####################################################################
+############################################### #####################################################################
+
+
 
 while True:
     ########################################## READING HISTORICAL DATA ##############################################################
@@ -119,24 +120,33 @@ Or Type in a number below.
         elif '5' == first_input[0]:
                 data_type = input('Would You like (1)Graphs, (2)Data, or (3)Both?: ').split()
                 print('Not quite ready. Check back in a couple of days.')
-                functions.clear_terminal()
                 if len(data_type) > 1:
                     print('Please try again...')
                     cont = input('Press "Enter" to continue: ')
                 elif '1' in data_type[0]:
-                    # These can be done with limited data
-                    #! A pie plot showing what you spend most of your time studying.
-                    functions.pie_hours_by_subject(historical_records)
-
-                    # These must have at least seven days of data
-                    try:
-                        #! This shows you the total hours studied by subject for the last week (7 DAYS).
-                        functions.past_seven_days_graph(historical_records)
-                        #! A function that returns the 7-day rolling average of hours studied.
-                        functions.weekly_rolling_avg_graph(historical_records)
-                    except IndexError:
-                        time.sleep(0.5)
-                        pass
+                    cont = input("\n\n(Enter) Regular, (1) Terminal: ")
+                    if '1' in cont:
+                        from matplotlib_terminal import plt as pltt
+                        functions.clear_terminal()
+                        functions.weekly_rolling_avg_graph_terminal()
+                        cont = input('\n\nPress "Enter" to continue: ')
+                        functions.past_seven_days_graph_terminal(historical_records)
+                        cont = input('\n\nPress "Enter" to continue: ')
+                    else:
+                        functions.clear_terminal()
+                        # These can be done with limited data
+                        #! A pie plot showing what you spend most of your time studying.
+                        functions.pie_hours_by_subject(historical_records)
+                        # These must have at least seven days of data
+                        try:
+                            #! This shows you the total hours studied by subject for the last week (7 DAYS).
+                            functions.past_seven_days_graph(historical_records)
+                            #! A function that returns the 7-day rolling average of hours studied.
+                            functions.weekly_rolling_avg_graph(historical_records)
+                            cont = input('\n\nPress "Enter" to continue: ')
+                        except IndexError:
+                            time.sleep(0.5)
+                            pass
 
                 elif '2' in data_type[0]:
 
@@ -189,9 +199,3 @@ Or Type in a number below.
         time.sleep(2)
         functions.clear_terminal()
         break
-    # except IndexError:
-    #     print('\nYou can\'t press "Enter" here ')
-    #     time.sleep(2.0)
-    #     print('It would not do anything anyways silly\n\n ')
-    #     time.sleep(2.0)
-    #     enter = input('Press "Enter" to continue: ')

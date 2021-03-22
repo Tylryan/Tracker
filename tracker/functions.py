@@ -1,17 +1,13 @@
-#! /bin/python
+#!/bin/python
 
-import panel as pn
-pn.extension('plotly')
-import plotly.express as px
-import panel.widgets as pnw
 import pandas as pd
-import csv
-import hvplot.pandas as hvplot
 import matplotlib.pyplot as plt
 import datetime as dt
 import seaborn as sns
 import time 
 import os
+import plotext
+from matplotlib_terminal import plt as pltt
 #! Eventually, I would the graphs to be in a dashboard.
 #! Eventually, you are going to want to see the weekly change in total hours by subject.
     #* Figure out how to subtract 2 group by with .diff().
@@ -19,6 +15,10 @@ import os
     #* This week you studied Python for 5 more hours.
 #! I would also like to see a desktop version. Perhaps using Tkinter.
 
+############################ CHECKING FOR PROPER IMPORTS ####################################
+
+def install():
+    os.system("pip install pandas ; pip install matplotlib ; pip install datetime ;  pip install seaborn ; pip install time ; pip install os ; pip install plotext ; pip install matplolib-terminal")
 
 # historical_records = pd.read_csv('records.csv', parse_dates=True, infer_datetime_format=True)
 # historical_records = historical_records.sort_values('Date', ascending = True)
@@ -208,19 +208,19 @@ def pie_hours_by_subject(historical_records):
     # grouping the original dataframe by subject and summing the hours.
     hours_by_subject = historical_records.groupby('Subject').Hours.sum()
     # Creting a pie chart that displays the results
-    pie_plot = hours_by_subject.plot(kind = 'pie', figsize = (30,15))
+    pie_plot = hours_by_subject.plot(kind = 'pie', figsize = (10,8))
     # Naming the x label of the chart to subject
     x_label = plt.xlabel('Subject')
     # Naming the y label of the chart to hours
     y_label = plt.ylabel('Hours')
     # Giving the graph a title
-    title = plt.title('Hours Studied by Subject')
+    title = plt.title('Total Hours Studied by Subject')
     # Setting the legend to be in the best location
     plt.legend(loc = 'best')
     # Making the graph layout to be as compact as possible
-    plt.tight_layout()
+    # plt.tight_layout()
     # Displaying the graph to the user
-    return pie_plot
+    plt.show()
 
 
 # Creating a bar chart that displays total hours studied by subject for the past seven days or week.
@@ -246,18 +246,17 @@ def past_seven_days_graph(historical_records):
                     # Creating a legend
                     legend = True, 
                     # Setting the size of the chart
-                    figsize = (30,15))
+                    figsize = (10,8))
     # Giving the chart a title
     title = plt.title('Total Hours Logged By Subject For The Last Week')
     # Naming the y label/axis
     ylabel = plt.ylabel('Hours Logged')
     # Displaying the chart to the user
-    return seven_plot
+    plt.show()
 
 # Creating a line graph that shows the user the seven day rolling/moving average of hours spent studying by subject
 # Getting all the subjects.
 def weekly_rolling_avg_graph(historical_records):
-
     historical_records = pd.read_csv('records.csv', parse_dates = True, index_col='Date')
     historical_records = historical_records.sort_values('Date', ascending = True)
     subjects = historical_records.Subject.unique()
@@ -269,24 +268,93 @@ def weekly_rolling_avg_graph(historical_records):
     python_records = historical_records[mask]['Hours']
     df['python'] = python_records
 
-    mask = historical_records.Subject == 'bash_scripting'
-    bash_records = historical_records[mask]['Hours']
-    df['bash_scripting'] = bash_records
-
-
-
-    for i in subjects[1:]:
+    for i in subjects:
         mask = historical_records.Subject == i
         subject_records = pd.DataFrame(historical_records[mask]['Hours'])
         subject_records.columns = [i]
         df[i] = subject_records
 
     df = df.fillna(0)
+    df = df.rolling(window = 7).mean()
 
-    df.plot(figsize = (30,15))
+    df.plot(
+        title = 'Weekly Rolling Average',
+        figsize = (10,8))
+    ylabel = 'Average Hours Studied per Day'
     plt.show()
 
+######################### TERMINAL GRAPHS ############################################
+def weekly_rolling_avg_graph_terminal():
+    historical_records = pd.read_csv('records.csv', parse_dates = True, index_col='Date')
+    historical_records = historical_records.sort_values('Date', ascending = True)
+    subjects = historical_records.Subject.unique()
 
+    df = pd.DataFrame()
+
+    # Creating a base
+    mask = historical_records.Subject == 'python'
+    python_records = historical_records[mask]['Hours']
+    df['python'] = python_records
+
+    for i in subjects:
+        mask = historical_records.Subject == i
+        subject_records = pd.DataFrame(historical_records[mask]['Hours'])
+        subject_records.columns = [i]
+        df[i] = subject_records
+
+    df = df.fillna(0)
+    df = df.rolling(window = 7).mean().dropna()
+
+    for i in df.columns:
+        plotext.plot(df[i], label = i)
+
+        # plotext.markers('0')
+    plotext.frame(True)
+    plotext.canvas_color("none")
+    plotext.grid(True)
+    plotext.title("7-Day Rolling Average By Subject")
+    plotext.ylabel('Hours')
+    plotext.xlabel('Date')
+    plotext.ticks_color('white')
+    plotext.axes_color('none')
+    plotext.line_marker = '0'
+    return plotext.show()
+
+def past_seven_days_graph_terminal(historical_records):
+    # Setting the index of the original dataframe as the date
+    indexed = historical_records.set_index('Date')
+    # Finding the unique days to use as a "Dictionary" of sorts
+    unique_days = indexed.index.unique()
+    # Finding the last seven days of the week
+    seven_days_ago = unique_days[-7]
+    # Creating a mask that captures the last seven days
+    last_seven_days = indexed.index >= seven_days_ago
+    # Filtering out the indexed dataframe to only display all data fromthe last sevend days
+    seven_days_of_data = indexed[last_seven_days]
+    # Grouping this filtered data by subject and summing the hours and turning it into a dataframe.
+    grouped_seven = pd.DataFrame(seven_days_of_data.groupby('Subject').Hours.sum())
+    # Renaming the column of the dataframe to "Hours"
+    grouped_seven.columns = ['Hours']
+    # Creating a bar chart to display the results
+
+
+    seven_plot = grouped_seven.plot(
+                    # Setting the chart to a bar chart
+                    kind = 'bar', 
+                    # Creating a legend
+                    legend = True,
+                    figsize = (9.5,5.5))
+                    # Setting the size of the chart
+                    # Giving the chart a title
+    title = pltt.title(
+        'Total Hours Logged By Subject For The Last Week', 
+        loc = 'left')
+    # Naming the y label/axis
+    ylabel = pltt.ylabel('Hours Logged')
+    # Displaying the chart to the user
+
+    seven_plot.set(facecolor = 'blue')
+    return pltt.show('braille')
 
     
     ################################ SAVING ########################################
